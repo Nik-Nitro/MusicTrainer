@@ -29,8 +29,7 @@ jobs:
         buildozer android debug deploy
 
     - name: Upload APK
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: MusicTrainer-v17.5
         path: bin/*.apk
-    
