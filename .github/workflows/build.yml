@@ -32,25 +32,22 @@ jobs:
         pip install --upgrade pip
         pip install buildozer cython
 
-    - name: Setup Android SDK (old compatible version)
+    - name: Setup Android SDK (correct structure)
       run: |
-        # Создаём папку для SDK
+        # Создаём структуру для Android SDK
         mkdir -p /home/runner/.buildozer/android/platform/android-sdk
         
-        # Скачиваем СТАРУЮ версию commandlinetools (совместимую с Buildozer)
+        # Скачиваем старую версию commandlinetools
         wget -q https://dl.google.com/android/repository/commandlinetools-linux-7583922_latest.zip -O /tmp/cmdline-tools.zip
         unzip -q /tmp/cmdline-tools.zip -d /tmp/
         
-        # Структура, которую ожидает Buildozer
-        mkdir -p /home/runner/.buildozer/android/platform/android-sdk/cmdline-tools
-        mv /tmp/cmdline-tools /home/runner/.buildozer/android/platform/android-sdk/cmdline-tools/latest
-        
-        # Создаём ссылку для совместимости
+        # Buildozer ожидает структуру: android-sdk/tools/bin/sdkmanager
+        # Или android-sdk/cmdline-tools/latest/bin/sdkmanager
         mkdir -p /home/runner/.buildozer/android/platform/android-sdk/tools
-        ln -s /home/runner/.buildozer/android/platform/android-sdk/cmdline-tools/latest/bin /home/runner/.buildozer/android/platform/android-sdk/tools/bin
+        cp -r /tmp/cmdline-tools/* /home/runner/.buildozer/android/platform/android-sdk/tools/
         
         # Добавляем в PATH
-        export PATH=$PATH:/home/runner/.buildozer/android/platform/android-sdk/cmdline-tools/latest/bin
+        export PATH=$PATH:/home/runner/.buildozer/android/platform/android-sdk/tools/bin
         
         # Принимаем лицензии
         yes | sdkmanager --licenses || true
@@ -60,7 +57,7 @@ jobs:
 
     - name: Build APK
       run: |
-        export PATH=$PATH:/home/runner/.buildozer/android/platform/android-sdk/cmdline-tools/latest/bin
+        export PATH=$PATH:/home/runner/.buildozer/android/platform/android-sdk/tools/bin
         buildozer android debug deploy
 
     - name: Upload APK
