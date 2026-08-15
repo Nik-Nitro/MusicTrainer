@@ -32,22 +32,22 @@ jobs:
         pip install --upgrade pip
         pip install buildozer cython
 
-    - name: Setup Android SDK (correct structure)
+    - name: Setup Android SDK
       run: |
-        # Создаём структуру для Android SDK
+        # Создаём папку для SDK
         mkdir -p /home/runner/.buildozer/android/platform/android-sdk
         
         # Скачиваем старую версию commandlinetools
         wget -q https://dl.google.com/android/repository/commandlinetools-linux-7583922_latest.zip -O /tmp/cmdline-tools.zip
         unzip -q /tmp/cmdline-tools.zip -d /tmp/
         
-        # Buildozer ожидает структуру: android-sdk/tools/bin/sdkmanager
-        # Или android-sdk/cmdline-tools/latest/bin/sdkmanager
+        # Копируем tools в папку, которую ищет Buildozer
         mkdir -p /home/runner/.buildozer/android/platform/android-sdk/tools
         cp -r /tmp/cmdline-tools/* /home/runner/.buildozer/android/platform/android-sdk/tools/
         
-        # Добавляем в PATH
-        export PATH=$PATH:/home/runner/.buildozer/android/platform/android-sdk/tools/bin
+        # Устанавливаем переменную ANDROID_SDK_ROOT
+        export ANDROID_SDK_ROOT=/home/runner/.buildozer/android/platform/android-sdk
+        export PATH=$PATH:$ANDROID_SDK_ROOT/tools/bin
         
         # Принимаем лицензии
         yes | sdkmanager --licenses || true
@@ -57,7 +57,8 @@ jobs:
 
     - name: Build APK
       run: |
-        export PATH=$PATH:/home/runner/.buildozer/android/platform/android-sdk/tools/bin
+        export ANDROID_SDK_ROOT=/home/runner/.buildozer/android/platform/android-sdk
+        export PATH=$PATH:$ANDROID_SDK_ROOT/tools/bin
         buildozer android debug deploy
 
     - name: Upload APK
