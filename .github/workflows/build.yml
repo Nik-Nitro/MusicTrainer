@@ -5,21 +5,38 @@ on:
     branches: [ main ]
   workflow_dispatch:
 
+env:
+  ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
+
 jobs:
   build:
     runs-on: ubuntu-latest
+    timeout-minutes: 120
 
     steps:
     - name: Checkout code
       uses: actions/checkout@v5
 
-    - name: Build APK
-      uses: digreatbrian/buildozer-action@v1
+    - name: Setup Python
+      uses: actions/setup-python@v6
       with:
-        command: buildozer android debug deploy
+        python-version: '3.11'
+
+    - name: Setup Android SDK
+      uses: android-actions/setup-android@v3
+
+    - name: Install buildozer
+      run: |
+        pip install --upgrade pip
+        pip install buildozer cython
+
+    - name: Build APK
+      run: |
+        buildozer android debug deploy
 
     - name: Upload APK
       uses: actions/upload-artifact@v4
       with:
-        name: MusicTrainer-action
+        name: MusicTrainer-v17.5
         path: bin/*.apk
+        if-no-files-found: error
