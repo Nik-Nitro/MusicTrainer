@@ -74,6 +74,9 @@ android.sdk = 33
 # Версия Android NDK
 android.ndk = 23b
 
+# Явно указываем версию build-tools, чтобы избежать проблем с лицензией
+android.build_tools = 33.0.2
+
 # Поддержка AndroidX
 android.enable_androidx = True
 
