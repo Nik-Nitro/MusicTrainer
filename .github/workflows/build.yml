@@ -5,13 +5,9 @@ on:
     branches: [ main ]
   workflow_dispatch:
 
-env:
-  ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
-
 jobs:
   build:
     runs-on: ubuntu-latest
-    timeout-minutes: 180
 
     steps:
     - name: Checkout code
@@ -24,42 +20,26 @@ jobs:
 
     - name: Install system dependencies
       run: |
-        sudo apt update
-        sudo apt install -y git zip unzip openjdk-17-jdk python3-pip autoconf libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev cmake libffi-dev libssl-dev
+        sudo apt-get update
+        sudo apt-get install -y \
+          openjdk-17-jdk \
+          autoconf \
+          libtool \
+          pkg-config \
+          zlib1g-dev \
+          build-essential \
+          git \
+          wget \
+          unzip
 
     - name: Install buildozer
       run: |
         pip install --upgrade pip
-        pip install buildozer cython
-
-    - name: Setup Android SDK
-      run: |
-        # Создаём папку для SDK
-        mkdir -p /home/runner/.buildozer/android/platform/android-sdk
-        
-        # Скачиваем старую версию commandlinetools
-        wget -q https://dl.google.com/android/repository/commandlinetools-linux-7583922_latest.zip -O /tmp/cmdline-tools.zip
-        unzip -q /tmp/cmdline-tools.zip -d /tmp/
-        
-        # Копируем tools в папку, которую ищет Buildozer
-        mkdir -p /home/runner/.buildozer/android/platform/android-sdk/tools
-        cp -r /tmp/cmdline-tools/* /home/runner/.buildozer/android/platform/android-sdk/tools/
-        
-        # Устанавливаем переменную ANDROID_SDK_ROOT
-        export ANDROID_SDK_ROOT=/home/runner/.buildozer/android/platform/android-sdk
-        export PATH=$PATH:$ANDROID_SDK_ROOT/tools/bin
-        
-        # Принимаем лицензии
-        yes | sdkmanager --licenses || true
-        
-        # Устанавливаем необходимые компоненты
-        sdkmanager "platform-tools" "platforms;android-31" "build-tools;33.0.2"
+        pip install cython buildozer
 
     - name: Build APK
       run: |
-        export ANDROID_SDK_ROOT=/home/runner/.buildozer/android/platform/android-sdk
-        export PATH=$PATH:$ANDROID_SDK_ROOT/tools/bin
-        buildozer android debug deploy
+        buildozer -v android debug
 
     - name: Upload APK
       uses: actions/upload-artifact@v4
