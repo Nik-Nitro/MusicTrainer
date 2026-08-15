@@ -24,12 +24,12 @@ jobs:
 
     - name: Free disk space
       run: |
-        echo "📊 Свободное место до очистки:"
+        echo "Свободное место до очистки:"
         df -h /
         sudo rm -rf /usr/local/lib/android
         sudo rm -rf /usr/share/dotnet
         sudo rm -rf /opt/ghc
-        echo "📊 Свободное место после очистки:"
+        echo "Свободное место после очистки:"
         df -h /
 
     - name: Install system dependencies
@@ -47,41 +47,35 @@ jobs:
         export ANDROID_SDK_ROOT=~/.buildozer/android/platform/android-sdk
         mkdir -p $ANDROID_SDK_ROOT
         
+        # Скачиваем правильную версию commandlinetools (старую, но стабильную)
         echo "📥 Скачивание Android SDK..."
-        wget -q https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip -O /tmp/cmdline-tools.zip
+        wget -q https://dl.google.com/android/repository/commandlinetools-linux-7583922_latest.zip -O /tmp/cmdline-tools.zip
         unzip -q /tmp/cmdline-tools.zip -d /tmp/
         
+        # Создаём структуру
         mkdir -p $ANDROID_SDK_ROOT/cmdline-tools
         mv /tmp/cmdline-tools $ANDROID_SDK_ROOT/cmdline-tools/latest
         
-        # Создаём ссылку для совместимости
-        mkdir -p $ANDROID_SDK_ROOT/tools
-        ln -sf $ANDROID_SDK_ROOT/cmdline-tools/latest/bin $ANDROID_SDK_ROOT/tools/bin
-        
-        # ДОБАВЛЯЕМ В PATH ПРЯМО СЕЙЧАС
+        # Добавляем в PATH
         export PATH=$ANDROID_SDK_ROOT/cmdline-tools/latest/bin:$PATH
-        export PATH=$ANDROID_SDK_ROOT/tools/bin:$PATH
         
-        echo "🔍 Проверка sdkmanager..."
-        which sdkmanager || echo "sdkmanager не найден"
-        ls -la $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/ || echo "Папка bin пуста"
+        # Устанавливаем sdkmanager
+        echo "📦 Установка sdkmanager..."
+        cd $ANDROID_SDK_ROOT/cmdline-tools/latest/bin
+        ./sdkmanager --update || true
         
         # Принимаем лицензии
         echo "📜 Принятие лицензий..."
-        yes | sdkmanager --licenses || true
+        yes | ./sdkmanager --licenses || true
         
         # Устанавливаем компоненты
         echo "📦 Установка компонентов..."
-        sdkmanager "platform-tools" "platforms;android-31" "build-tools;33.0.2"
+        ./sdkmanager "platform-tools" "platforms;android-31" "build-tools;33.0.2"
 
     - name: Build APK
       run: |
         export ANDROID_SDK_ROOT=~/.buildozer/android/platform/android-sdk
         export PATH=$ANDROID_SDK_ROOT/cmdline-tools/latest/bin:$PATH
-        export PATH=$ANDROID_SDK_ROOT/tools/bin:$PATH
-        
-        echo "🔍 Проверка перед сборкой:"
-        which sdkmanager || echo "⚠️ sdkmanager не найден"
         
         if [ ! -f buildozer.spec ]; then
           echo "❌ buildozer.spec не найден!"
