@@ -5,25 +5,36 @@ on:
     branches: [ main ]
   workflow_dispatch:
 
+env:
+  ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
+
 jobs:
   build:
     runs-on: ubuntu-latest
-    container:
-      image: kivy/buildozer:latest
-      env:
-        PACKAGES_PATH: /github/home/.buildozer/android/packages
-        ANDROIDSDK: /github/home/.buildozer/android/platform/android-sdk
-        ANDROIDNDK: /github/home/.buildozer/android/platform/android-ndk-r23b
-        ANDROIDAPI: 31
-        ANDROIDMINAPI: 21
+    timeout-minutes: 180
 
     steps:
     - name: Checkout code
       uses: actions/checkout@v5
 
+    - name: Setup Python
+      uses: actions/setup-python@v6
+      with:
+        python-version: '3.11'
+
+    - name: Install system dependencies
+      run: |
+        sudo apt update
+        sudo apt install -y git zip unzip openjdk-17-jdk python3-pip autoconf libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev cmake libffi-dev libssl-dev
+
+    - name: Install buildozer
+      run: |
+        pip install --upgrade pip
+        pip install buildozer cython
+
     - name: Build APK
       run: |
-        yes | buildozer -v android debug deploy
+        buildozer android debug deploy
 
     - name: Upload APK
       uses: actions/upload-artifact@v4
