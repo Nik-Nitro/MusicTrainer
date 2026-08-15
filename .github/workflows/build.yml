@@ -28,8 +28,12 @@ jobs:
         pip install --upgrade pip
         pip install buildozer
 
-    - name: Accept Android SDK licenses
+    - name: Accept all Android SDK licenses
       run: |
+        mkdir -p ~/.buildozer/android/platform/android-sdk/cmdline-tools/latest
+        wget -q https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip -O /tmp/cmdline-tools.zip
+        unzip -q /tmp/cmdline-tools.zip -d /tmp/
+        mv /tmp/cmdline-tools ~/.buildozer/android/platform/android-sdk/cmdline-tools/latest/
         yes | ~/.buildozer/android/platform/android-sdk/cmdline-tools/latest/bin/sdkmanager --licenses || true
 
     - name: Build APK
