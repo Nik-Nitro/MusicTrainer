@@ -37,28 +37,32 @@ jobs:
         # Создаём структуру папок
         mkdir -p ~/.buildozer/android/platform/android-sdk
         
-        # Скачиваем актуальную версию commandlinetools
+        # Скачиваем commandlinetools
         wget -q https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip -O /tmp/cmdline-tools.zip
-        
-        # Распаковываем
         unzip -q /tmp/cmdline-tools.zip -d /tmp/
         
-        # Правильная структура: latest должна быть внутри cmdline-tools
+        # Создаём правильную структуру
         mkdir -p ~/.buildozer/android/platform/android-sdk/cmdline-tools
         mv /tmp/cmdline-tools ~/.buildozer/android/platform/android-sdk/cmdline-tools/latest
         
-        # Добавляем sdkmanager в PATH
+        # СОЗДАЁМ СТАРЫЙ ПУТЬ ДЛЯ СОВМЕСТИМОСТИ С BUILDozer
+        mkdir -p ~/.buildozer/android/platform/android-sdk/tools
+        ln -s ~/.buildozer/android/platform/android-sdk/cmdline-tools/latest/bin ~/.buildozer/android/platform/android-sdk/tools/bin
+        
+        # Добавляем в PATH
         export PATH=$PATH:~/.buildozer/android/platform/android-sdk/cmdline-tools/latest/bin
+        export PATH=$PATH:~/.buildozer/android/platform/android-sdk/tools/bin
         
         # Принимаем лицензии
         yes | sdkmanager --licenses || true
         
-        # Устанавливаем необходимые компоненты
+        # Устанавливаем компоненты
         sdkmanager "platform-tools" "platforms;android-31" "build-tools;33.0.2"
 
     - name: Build APK
       run: |
         export PATH=$PATH:~/.buildozer/android/platform/android-sdk/cmdline-tools/latest/bin
+        export PATH=$PATH:~/.buildozer/android/platform/android-sdk/tools/bin
         buildozer android debug deploy
 
     - name: Upload APK
