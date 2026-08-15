@@ -10,6 +10,12 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: kivy/buildozer:latest
+      env:
+        PACKAGES_PATH: /github/home/.buildozer/android/packages
+        ANDROIDSDK: /github/home/.buildozer/android/platform/android-sdk
+        ANDROIDNDK: /github/home/.buildozer/android/platform/android-ndk-r23b
+        ANDROIDAPI: 31
+        ANDROIDMINAPI: 21
 
     steps:
     - name: Checkout code
