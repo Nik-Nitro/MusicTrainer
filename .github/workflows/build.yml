@@ -45,10 +45,15 @@ jobs:
         mkdir -p ~/.buildozer/android/platform/android-sdk/cmdline-tools
         mv /tmp/cmdline-tools ~/.buildozer/android/platform/android-sdk/cmdline-tools/latest
         
+        # СОЗДАЁМ СТАРЫЙ ПУТЬ ДЛЯ СОВМЕСТИМОСТИ С BUILDozer
+        mkdir -p ~/.buildozer/android/platform/android-sdk/tools
+        ln -s ~/.buildozer/android/platform/android-sdk/cmdline-tools/latest/bin ~/.buildozer/android/platform/android-sdk/tools/bin
+        
         # Добавляем в PATH
         export PATH=$PATH:~/.buildozer/android/platform/android-sdk/cmdline-tools/latest/bin
+        export PATH=$PATH:~/.buildozer/android/platform/android-sdk/tools/bin
         
-        # Принимаем лицензии (игнорируем ошибки)
+        # Принимаем лицензии
         yes | sdkmanager --licenses || true
         
         # Устанавливаем необходимые компоненты
@@ -57,6 +62,7 @@ jobs:
     - name: Build APK
       run: |
         export PATH=$PATH:~/.buildozer/android/platform/android-sdk/cmdline-tools/latest/bin
+        export PATH=$PATH:~/.buildozer/android/platform/android-sdk/tools/bin
         buildozer android debug deploy
 
     - name: Upload APK
