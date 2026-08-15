@@ -11,9 +11,12 @@ env:
 jobs:
   build:
     runs-on: ubuntu-latest
-    timeout-minutes: 120
+    timeout-minutes: 180  # 3 часа на всякий случай
 
     steps:
+    # ============================================
+    # 1. БАЗОВАЯ НАСТРОЙКА
+    # ============================================
     - name: Checkout code
       uses: actions/checkout@v5
 
@@ -22,52 +25,159 @@ jobs:
       with:
         python-version: '3.11'
 
+    # ============================================
+    # 2. ОСВОБОЖДЕНИЕ МЕСТА НА ДИСКЕ
+    # ============================================
+    - name: Free disk space
+      run: |
+        echo "📊 Свободное место до очистки:"
+        df -h /
+        echo ""
+        echo "🧹 Очистка ненужных компонентов..."
+        sudo rm -rf /usr/local/lib/android
+        sudo rm -rf /usr/share/dotnet
+        sudo rm -rf /opt/ghc
+        sudo rm -rf /opt/hostedtoolcache/CodeQL
+        sudo rm -rf /opt/microsoft/powershell
+        sudo apt-get clean
+        sudo apt-get autoremove -y
+        echo ""
+        echo "📊 Свободное место после очистки:"
+        df -h /
+
+    # ============================================
+    # 3. УСТАНОВКА ЗАВИСИМОСТЕЙ
+    # ============================================
     - name: Install system dependencies
       run: |
         sudo apt update
-        sudo apt install -y git zip unzip openjdk-17-jdk python3-pip autoconf libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev cmake libffi-dev libssl-dev
+        sudo apt install -y \
+          git zip unzip \
+          openjdk-17-jdk \
+          python3-pip \
+          autoconf libtool \
+          pkg-config \
+          zlib1g-dev libncurses5-dev libncursesw5-dev \
+          cmake libffi-dev libssl-dev \
+          wget curl
 
     - name: Install buildozer
       run: |
-        pip install --upgrade pip
+        pip install --upgrade pip setuptools wheel
         pip install buildozer cython
 
+    # ============================================
+    # 4. НАСТРОЙКА ANDROID SDK
+    # ============================================
     - name: Setup Android SDK
       run: |
-        # Создаём структуру папок
-        mkdir -p ~/.buildozer/android/platform/android-sdk
+        export ANDROID_SDK_ROOT=~/.buildozer/android/platform/android-sdk
+        mkdir -p $ANDROID_SDK_ROOT
         
         # Скачиваем commandlinetools
-        wget -q https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip -O /tmp/cmdline-tools.zip
+        echo "📥 Скачивание Android SDK..."
+        wget -q --show-progress https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip -O /tmp/cmdline-tools.zip
         unzip -q /tmp/cmdline-tools.zip -d /tmp/
         
-        # Создаём правильную структуру
-        mkdir -p ~/.buildozer/android/platform/android-sdk/cmdline-tools
-        mv /tmp/cmdline-tools ~/.buildozer/android/platform/android-sdk/cmdline-tools/latest
+        # Правильная структура
+        mkdir -p $ANDROID_SDK_ROOT/cmdline-tools
+        mv /tmp/cmdline-tools $ANDROID_SDK_ROOT/cmdline-tools/latest
         
-        # СОЗДАЁМ СТАРЫЙ ПУТЬ ДЛЯ СОВМЕСТИМОСТИ С BUILDozer
-        mkdir -p ~/.buildozer/android/platform/android-sdk/tools
-        ln -s ~/.buildozer/android/platform/android-sdk/cmdline-tools/latest/bin ~/.buildozer/android/platform/android-sdk/tools/bin
+        # Совместимость со старым путём
+        mkdir -p $ANDROID_SDK_ROOT/tools
+        ln -sf $ANDROID_SDK_ROOT/cmdline-tools/latest/bin $ANDROID_SDK_ROOT/tools/bin
         
         # Добавляем в PATH
-        export PATH=$PATH:~/.buildozer/android/platform/android-sdk/cmdline-tools/latest/bin
-        export PATH=$PATH:~/.buildozer/android/platform/android-sdk/tools/bin
+        echo "$ANDROID_SDK_ROOT/cmdline-tools/latest/bin" >> $GITHUB_PATH
+        echo "$ANDROID_SDK_ROOT/tools/bin" >> $GITHUB_PATH
+        echo "ANDROID_SDK_ROOT=$ANDROID_SDK_ROOT" >> $GITHUB_ENV
         
         # Принимаем лицензии
+        echo "📜 Принятие лицензий Android SDK..."
         yes | sdkmanager --licenses || true
         
         # Устанавливаем компоненты
+        echo "📦 Установка компонентов Android SDK..."
         sdkmanager "platform-tools" "platforms;android-31" "build-tools;33.0.2"
 
-    - name: Build APK
-      run: |
-        export PATH=$PATH:~/.buildozer/android/platform/android-sdk/cmdline-tools/latest/bin
-        export PATH=$PATH:~/.buildozer/android/platform/android-sdk/tools/bin
-        buildozer android debug deploy
+    # ============================================
+    # 5. КЭШИРОВАНИЕ (ускоряет повторные сборки)
+    # ============================================
+    - name: Cache buildozer
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/.buildozer
+        key: ${{ runner.os }}-buildozer-${{ hashFiles('buildozer.spec') }}
+        restore-keys: |
+          ${{ runner.os }}-buildozer-
 
+    # ============================================
+    # 6. СБОРКА APK
+    # ============================================
+    - name: Build APK
+      id: build_apk
+      run: |
+        export ANDROID_SDK_ROOT=~/.buildozer/android/platform/android-sdk
+        export PATH=$PATH:$ANDROID_SDK_ROOT/cmdline-tools/latest/bin
+        export PATH=$PATH:$ANDROID_SDK_ROOT/tools/bin
+        
+        echo "🚀 Начало сборки APK..."
+        echo "📁 Текущая директория: $(pwd)"
+        echo "📄 Содержимое:"
+        ls -la
+        
+        # Проверяем наличие buildozer.spec
+        if [ ! -f buildozer.spec ]; then
+          echo "❌ buildozer.spec не найден!"
+          exit 1
+        fi
+        
+        # Сборка с подробным логированием
+        buildozer -v android debug deploy 2>&1 | tee build.log
+        
+        # Проверяем результат
+        if [ -f bin/*.apk ]; then
+          echo "✅ APK успешно создан!"
+          echo "📦 Размер APK:"
+          ls -lh bin/*.apk
+          echo "APK_EXISTS=true" >> $GITHUB_ENV
+        else
+          echo "❌ APK не найден!"
+          echo "📋 Последние 100 строк лога:"
+          tail -100 build.log
+          echo "APK_EXISTS=false" >> $GITHUB_ENV
+          exit 1
+        fi
+
+    # ============================================
+    # 7. ЗАГРУЗКА АРТЕФАКТОВ
+    # ============================================
     - name: Upload APK
       uses: actions/upload-artifact@v4
       with:
-        name: MusicTrainer-v17.5
+        name: MusicTrainer-v17.5-${{ github.run_number }}
         path: bin/*.apk
         if-no-files-found: error
+
+    - name: Upload build log
+      uses: actions/upload-artifact@v4
+      with:
+        name: build-log-${{ github.run_number }}
+        path: build.log
+        if-no-files-found: ignore
+
+    # ============================================
+    # 8. УВЕДОМЛЕНИЕ (если нужно)
+    # ============================================
+    - name: Notify success
+      if: success()
+      run: |
+        echo "🎉 Сборка успешно завершена!"
+        echo "📦 APK доступен в Artifacts"
+
+    - name: Notify failure
+      if: failure()
+      run: |
+        echo "❌ Сборка завершилась с ошибкой!"
+        echo "📋 Проверьте логи выше для диагностики"
