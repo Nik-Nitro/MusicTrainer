@@ -5,79 +5,23 @@ on:
     branches: [ main ]
   workflow_dispatch:
 
-env:
-  ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
-
 jobs:
   build:
     runs-on: ubuntu-latest
-    timeout-minutes: 180
+    container:
+      image: kivy/buildozer:latest
 
     steps:
     - name: Checkout code
       uses: actions/checkout@v5
 
-    - name: Setup Python
-      uses: actions/setup-python@v6
-      with:
-        python-version: '3.11'
-
-    - name: Free disk space
-      run: |
-        echo "📊 Свободное место до очистки:"
-        df -h /
-        sudo rm -rf /usr/local/lib/android
-        sudo rm -rf /usr/share/dotnet
-        sudo rm -rf /opt/ghc
-        echo "📊 Свободное место после очистки:"
-        df -h /
-
-    - name: Install system dependencies
-      run: |
-        sudo apt update
-        sudo apt install -y git zip unzip openjdk-17-jdk python3-pip autoconf libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev cmake libffi-dev libssl-dev wget curl
-
-    - name: Setup Android SDK
-      uses: android-actions/setup-android@v4
-
-    - name: Install buildozer
-      run: |
-        pip install --upgrade pip setuptools wheel
-        pip install buildozer cython
-
     - name: Build APK
       run: |
-        export ANDROID_SDK_ROOT=$ANDROID_HOME
-        export PATH=$ANDROID_HOME/cmdline-tools/latest/bin:$PATH
-        export PATH=$ANDROID_HOME/platform-tools:$PATH
-        
-        if [ ! -f buildozer.spec ]; then
-          echo "❌ buildozer.spec не найден!"
-          exit 1
-        fi
-        
-        echo "🚀 Начало сборки APK..."
-        buildozer -v android debug deploy 2>&1 | tee build.log
-        
-        if [ -f bin/*.apk ]; then
-          echo "✅ APK успешно создан!"
-          ls -lh bin/*.apk
-        else
-          echo "❌ APK не найден!"
-          tail -100 build.log
-          exit 1
-        fi
+        buildozer android debug deploy
 
     - name: Upload APK
       uses: actions/upload-artifact@v4
       with:
-        name: MusicTrainer-v17.5-${{ github.run_number }}
+        name: MusicTrainer-v17.5
         path: bin/*.apk
         if-no-files-found: error
-
-    - name: Upload build log
-      uses: actions/upload-artifact@v4
-      with:
-        name: build-log-${{ github.run_number }}
-        path: build.log
-        if-no-files-found: ignore
