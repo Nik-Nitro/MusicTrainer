@@ -37,27 +37,23 @@ jobs:
     - name: Setup Android SDK
       run: |
         # Создаём папку для SDK
-        mkdir -p ~/.buildozer/android/platform/android-sdk
+        mkdir -p /home/runner/.buildozer/android/platform/android-sdk
         
         # Скачиваем commandlinetools
         wget -q https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip -O /tmp/cmdline-tools.zip
         unzip -q /tmp/cmdline-tools.zip -d /tmp/
         
         # Правильная структура
-        mkdir -p ~/.buildozer/android/platform/android-sdk/cmdline-tools
-        mv /tmp/cmdline-tools ~/.buildozer/android/platform/android-sdk/cmdline-tools/latest
+        mkdir -p /home/runner/.buildozer/android/platform/android-sdk/cmdline-tools
+        mv /tmp/cmdline-tools /home/runner/.buildozer/android/platform/android-sdk/cmdline-tools/latest
         
         # Создаём старый путь для совместимости
-        mkdir -p ~/.buildozer/android/platform/android-sdk/tools
-        ln -s ~/.buildozer/android/platform/android-sdk/cmdline-tools/latest/bin ~/.buildozer/android/platform/android-sdk/tools/bin
+        mkdir -p /home/runner/.buildozer/android/platform/android-sdk/tools
+        ln -s /home/runner/.buildozer/android/platform/android-sdk/cmdline-tools/latest/bin /home/runner/.buildozer/android/platform/android-sdk/tools/bin
         
         # Добавляем в PATH
-        export PATH=$PATH:~/.buildozer/android/platform/android-sdk/cmdline-tools/latest/bin
-        export PATH=$PATH:~/.buildozer/android/platform/android-sdk/tools/bin
-        
-        # Устанавливаем переменные окружения
-        echo "ANDROID_SDK_ROOT=~/.buildozer/android/platform/android-sdk" >> $GITHUB_ENV
-        echo "ANDROID_NDK_ROOT=~/.buildozer/android/platform/android-ndk-r23b" >> $GITHUB_ENV
+        export PATH=$PATH:/home/runner/.buildozer/android/platform/android-sdk/cmdline-tools/latest/bin
+        export PATH=$PATH:/home/runner/.buildozer/android/platform/android-sdk/tools/bin
         
         # Принимаем лицензии
         yes | sdkmanager --licenses || true
@@ -67,8 +63,8 @@ jobs:
 
     - name: Build APK
       run: |
-        export PATH=$PATH:~/.buildozer/android/platform/android-sdk/cmdline-tools/latest/bin
-        export PATH=$PATH:~/.buildozer/android/platform/android-sdk/tools/bin
+        export PATH=$PATH:/home/runner/.buildozer/android/platform/android-sdk/cmdline-tools/latest/bin
+        export PATH=$PATH:/home/runner/.buildozer/android/platform/android-sdk/tools/bin
         buildozer -v android debug deploy
 
     - name: Upload APK
