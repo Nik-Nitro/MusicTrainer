@@ -11,32 +11,94 @@ env:
 jobs:
   build:
     runs-on: ubuntu-latest
-    timeout-minutes: 120
+    timeout-minutes: 180
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
 
     - name: Setup Python
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@v6
       with:
         python-version: '3.11'
 
-    - name: Setup Android SDK
-      uses: android-actions/setup-android@v4
+    - name: Free disk space
+      run: |
+        echo "📊 Свободное место до очистки:"
+        df -h /
+        sudo rm -rf /usr/local/lib/android
+        sudo rm -rf /usr/share/dotnet
+        sudo rm -rf /opt/ghc
+        echo "📊 Свободное место после очистки:"
+        df -h /
+
+    - name: Install system dependencies
+      run: |
+        sudo apt update
+        sudo apt install -y git zip unzip openjdk-17-jdk python3-pip autoconf libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev cmake libffi-dev libssl-dev wget curl
 
     - name: Install buildozer
       run: |
-        pip install --upgrade pip
+        pip install --upgrade pip setuptools wheel
         pip install buildozer cython
+
+    - name: Setup Android SDK
+      run: |
+        export ANDROID_SDK_ROOT=~/.buildozer/android/platform/android-sdk
+        mkdir -p $ANDROID_SDK_ROOT
+        
+        echo "📥 Скачивание Android SDK..."
+        wget -q https://dl.google.com/android/repository/commandlinetools-linux-7583922_latest.zip -O /tmp/cmdline-tools.zip
+        unzip -q /tmp/cmdline-tools.zip -d /tmp/
+        
+        mkdir -p $ANDROID_SDK_ROOT/cmdline-tools
+        mv /tmp/cmdline-tools $ANDROID_SDK_ROOT/cmdline-tools/latest
+        
+        mkdir -p $ANDROID_SDK_ROOT/tools
+        ln -sf $ANDROID_SDK_ROOT/cmdline-tools/latest/bin $ANDROID_SDK_ROOT/tools/bin
+        
+        export PATH=$ANDROID_SDK_ROOT/cmdline-tools/latest/bin:$PATH
+        export PATH=$ANDROID_SDK_ROOT/tools/bin:$PATH
+        
+        echo "📜 Принятие лицензий..."
+        yes | sdkmanager --licenses || true
+        
+        echo "📦 Установка компонентов..."
+        sdkmanager "platform-tools" "platforms;android-31" "build-tools;33.0.2"
 
     - name: Build APK
       run: |
-        buildozer android debug deploy
+        export ANDROID_SDK_ROOT=~/.buildozer/android/platform/android-sdk
+        export PATH=$ANDROID_SDK_ROOT/cmdline-tools/latest/bin:$PATH
+        export PATH=$ANDROID_SDK_ROOT/tools/bin:$PATH
+        
+        if [ ! -f buildozer.spec ]; then
+          echo "❌ buildozer.spec не найден!"
+          exit 1
+        fi
+        
+        echo "🚀 Начало сборки APK..."
+        buildozer -v android debug deploy 2>&1 | tee build.log
+        
+        if [ -f bin/*.apk ]; then
+          echo "✅ APK успешно создан!"
+          ls -lh bin/*.apk
+        else
+          echo "❌ APK не найден!"
+          tail -100 build.log
+          exit 1
+        fi
 
     - name: Upload APK
       uses: actions/upload-artifact@v4
       with:
-        name: MusicTrainer-v17.5
+        name: MusicTrainer-v17.5-${{ github.run_number }}
         path: bin/*.apk
         if-no-files-found: error
+
+    - name: Upload build log
+      uses: actions/upload-artifact@v4
+      with:
+        name: build-log-${{ github.run_number }}
+        path: build.log
+        if-no-files-found: ignore
