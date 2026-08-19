@@ -54,6 +54,7 @@ jobs:
                       python-for-android==2024.01.21 \
                       meson==1.4.0 \
                       cython==0.29.37
+          export URL_python3="https://github.com/python/cpython/archive/refs/tags/v3.11.0.tar.gz"
 
       - name: Build with Buildozer
         run: |
