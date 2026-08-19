@@ -7,6 +7,8 @@ class Python3Recipe(PythonRecipe):
     version = '3.11.0'
     url = 'https://github.com/python/cpython/archive/refs/tags/v3.11.0.tar.gz'
 
+    # НЕ ДОБАВЛЯЙ depends=['hostpython3'] — это создаёт цикл!
+
     def download_if_necessary(self):
         download_url = 'https://github.com/python/cpython/archive/refs/tags/v3.11.0.tar.gz'
         target = os.path.join(self.ctx.packages_path, 'python3', 'v3.11.0.tar.gz')
@@ -23,7 +25,5 @@ class Python3Recipe(PythonRecipe):
         env = super().get_recipe_env(arch)
         env['PYTHON_VERSION'] = '3.11'
         return env
-
-    # include_root и get_build_dir теперь не нужны — они есть в PythonRecipe
 
 recipe = Python3Recipe()
