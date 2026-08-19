@@ -7,7 +7,7 @@ class Python3Recipe(PythonRecipe):
     version = '3.11.0'
     url = 'https://github.com/python/cpython/archive/refs/tags/v3.11.0.tar.gz'
 
-    # НЕ ДОБАВЛЯЙ depends=['hostpython3'] — это создаёт цикл!
+    # НЕТ depends=['hostpython3'] — это создаёт цикл!
 
     def download_if_necessary(self):
         download_url = 'https://github.com/python/cpython/archive/refs/tags/v3.11.0.tar.gz'
