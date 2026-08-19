@@ -16,14 +16,13 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Build with Buildozer
-        uses: ArtemSBulgakov/buildozer-action@v1
-        id: buildozer
+        uses: digreatbrian/buildozer-action@v2
         with:
-          command: buildozer android debug
-          buildozer_version: stable
+          python-version: 3.11
+          buildozer-cmd: buildozer android debug
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: musictrainer-apk
-          path: ${{ steps.buildozer.outputs.filename }}
+          path: bin/*.apk
