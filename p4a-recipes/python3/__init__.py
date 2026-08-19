@@ -6,7 +6,6 @@ class Python3Recipe(Recipe):
     name = 'python3'
     version = '3.11.0'
     url = 'https://github.com/python/cpython/archive/refs/tags/v3.11.0.tar.gz'
-    # НЕ ДОБАВЛЯЙ depends=['hostpython3'] — это создаёт цикл!
 
     def download_if_necessary(self):
         download_url = 'https://github.com/python/cpython/archive/refs/tags/v3.11.0.tar.gz'
@@ -27,8 +26,10 @@ class Python3Recipe(Recipe):
 
     def include_root(self, arch):
         """Возвращает путь к заголовочным файлам Python."""
+        # arch может быть объектом или строкой
+        arch_name = arch.arch if hasattr(arch, 'arch') else arch
         return os.path.join(
-            self.get_build_dir(arch.arch),
+            self.get_build_dir(arch_name),
             'android-build', 'android-root', 'include', 'python3.11'
         )
 
