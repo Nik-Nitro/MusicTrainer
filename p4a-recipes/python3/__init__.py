@@ -6,7 +6,6 @@ class Python3Recipe(PythonRecipe):
     name = 'python3'
     version = '3.11.0'
     url = 'https://github.com/python/cpython/archive/refs/tags/v3.11.0.tar.gz'
-    # depends убираем, чтобы избежать цикла
 
     def download_if_necessary(self):
         download_url = 'https://github.com/python/cpython/archive/refs/tags/v3.11.0.tar.gz'
@@ -24,5 +23,20 @@ class Python3Recipe(PythonRecipe):
         env = super().get_recipe_env(arch)
         env['PYTHON_VERSION'] = '3.11'
         return env
+
+    def include_root(self, arch):
+        """Возвращает путь к заголовочным файлам Python для кросс-компиляции."""
+        # Это путь к заголовочным файлам Python, собранным для Android
+        return os.path.join(
+            self.get_build_dir(arch.arch),
+            'android-build', 'android-root', 'include', 'python3.11'
+        )
+
+    def get_build_dir(self, arch_name):
+        """Возвращает директорию сборки Python для указанной архитектуры."""
+        return os.path.join(
+            self.ctx.build_dir, 'other_builds', 'python3',
+            arch_name + '__ndk_target_' + str(self.ctx.ndk_api)
+        )
 
 recipe = Python3Recipe()
