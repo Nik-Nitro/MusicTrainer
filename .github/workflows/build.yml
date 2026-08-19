@@ -48,7 +48,7 @@ jobs:
       - name: Build with Docker
         run: |
           docker build -t builder .
-          docker run --rm -v "$PWD:/app" --user root builder sh -c "chown -R builder:builder /app && su builder -c 'buildozer -y android debug deploy run'"
+          docker run --rm -v "$PWD:/app" builder buildozer -y android debug deploy run
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
