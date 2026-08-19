@@ -1,42 +1,56 @@
-name: Build APK
+name: Build Android APK
 
 on:
   push:
     branches: [ main ]
-  workflow_dispatch:
+  pull_request:
+    branches: [ main ]
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
-
+  build-android:
+    name: Build APK with Buildozer
+    runs-on: ubuntu-22.04
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    - name: Setup Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: '3.11'
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
 
-    - name: Setup Android SDK
-      uses: android-actions/setup-android@v4
-      with:
-        cmdline-tools-version: 8512546
-        accept-android-sdk-licenses: true
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            git zip unzip wget curl make \
+            default-jdk \
+            autoconf libtool pkg-config \
+            zlib1g-dev libncurses5-dev libncursesw5-dev \
+            cmake libffi-dev libssl-dev \
+            libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev \
+            libgl1-mesa-dev \
+            portaudio19-dev \
+            libblas-dev liblapack-dev gfortran \
+            patchelf \
+            ninja-build
 
-    - name: Install buildozer
-      run: |
-        pip install --upgrade pip
-        pip install buildozer cython
+      - name: Install Python packages
+        run: |
+          pip install --upgrade pip
+          pip install buildozer==1.6.0 \
+                      setuptools==69.5.1 \
+                      wheel==0.43.0 \
+                      python-for-android==2024.01.21 \
+                      meson==1.4.0 \
+                      cython==0.29.37
 
-    - name: Build APK
-      run: |
-        export ANDROID_SDK_ROOT=$ANDROID_HOME
-        buildozer android debug deploy
+      - name: Build with Buildozer
+        run: |
+          buildozer -v android debug deploy run
 
-    - name: Upload APK
-      uses: actions/upload-artifact@v4
-      with:
-        name: MusicTrainer-v17.5
-        path: bin/*.apk
-        if-no-files-found: error
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: musictrainer-apk
+          path: bin/*.apk
