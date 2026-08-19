@@ -15,43 +15,15 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - name: Build with Buildozer
+        uses: ArtemSBulgakov/buildozer-action@v1
+        id: buildozer
         with:
-          python-version: '3.11'
-
-      - name: Cache apt packages
-        uses: actions/cache@v3
-        with:
-          path: /var/cache/apt/archives
-          key: ${{ runner.os }}-apt-${{ hashFiles('**/buildozer.spec') }}
-          restore-keys: |
-            ${{ runner.os }}-apt-
-
-      - name: Install dependencies
-        run: |
-          sudo sed -i 's/azure.archive.ubuntu.com/archive.ubuntu.com/g' /etc/apt/sources.list
-          sudo apt-get update
-          sudo apt-get install -y --no-install-recommends \
-            git zip unzip wget curl make \
-            default-jdk \
-            autoconf libtool pkg-config \
-            zlib1g-dev libncurses5-dev libncursesw5-dev \
-            cmake libffi-dev libssl-dev \
-            libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev \
-            libgl1-mesa-dev \
-            portaudio19-dev \
-            libblas-dev liblapack-dev gfortran \
-            patchelf \
-            ninja-build
-
-      - name: Build with Docker
-        run: |
-          docker build -t builder .
-          docker run --rm -v "$PWD:/app" -e BUILDOZER_WARN_ON_ROOT=0 builder buildozer android debug deploy run
+          command: buildozer android debug
+          buildozer_version: stable
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: musictrainer-apk
-          path: bin/*.apk
+          path: ${{ steps.buildozer.outputs.filename }}
