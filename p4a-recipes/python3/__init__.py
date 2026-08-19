@@ -1,12 +1,13 @@
-from pythonforandroid.recipe import PythonRecipe
+from pythonforandroid.recipe import Recipe
 from pythonforandroid.logger import info
 import os
 
-class Python3Recipe(PythonRecipe):
+class Python3Recipe(Recipe):
     name = 'python3'
     version = '3.11.0'
     url = 'https://github.com/python/cpython/archive/refs/tags/v3.11.0.tar.gz'
-    depends = ['hostpython3']
+    # УБИРАЕМ depends, чтобы избежать цикла!
+    # depends = ['hostpython3']
 
     def download_if_necessary(self):
         download_url = 'https://github.com/python/cpython/archive/refs/tags/v3.11.0.tar.gz'
