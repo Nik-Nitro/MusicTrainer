@@ -12,6 +12,7 @@ source.exclude_dirs = tests, __pycache__, .git, .buildozer, to_delete_backup
 source.include_patterns = data/*, exercises/*, screens/*, core/*, ui/*
 
 requirements = python3==3.11,kivy==2.1.0,pygame==2.6.1,numpy
+URL_python3 = https://github.com/python/cpython/archive/refs/tags/v3.11.0.tar.gz
 
 hostpython3 = /usr/local/bin/python3.11
 
