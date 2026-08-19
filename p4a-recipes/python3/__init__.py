@@ -1,8 +1,8 @@
-from pythonforandroid.recipe import Recipe
+from pythonforandroid.recipe import PythonRecipe
 from pythonforandroid.logger import info
 import os
 
-class Python3Recipe(Recipe):
+class Python3Recipe(PythonRecipe):
     name = 'python3'
     version = '3.11.0'
     url = 'https://github.com/python/cpython/archive/refs/tags/v3.11.0.tar.gz'
@@ -24,19 +24,6 @@ class Python3Recipe(Recipe):
         env['PYTHON_VERSION'] = '3.11'
         return env
 
-    def include_root(self, arch):
-        """Возвращает путь к заголовочным файлам Python."""
-        # arch может быть объектом или строкой
-        arch_name = arch.arch if hasattr(arch, 'arch') else arch
-        return os.path.join(
-            self.get_build_dir(arch_name),
-            'android-build', 'android-root', 'include', 'python3.11'
-        )
-
-    def get_build_dir(self, arch_name):
-        return os.path.join(
-            self.ctx.build_dir, 'other_builds', 'python3',
-            arch_name + '__ndk_target_' + str(self.ctx.ndk_api)
-        )
+    # include_root и get_build_dir теперь не нужны — они есть в PythonRecipe
 
 recipe = Python3Recipe()
