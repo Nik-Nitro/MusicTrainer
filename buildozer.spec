@@ -13,6 +13,7 @@ source.include_patterns = data/*, exercises/*, screens/*, core/*, ui/*
 
 requirements = python3==3.11.0,kivy==2.1.0,pygame==2.6.1,numpy
 
+# ВАЖНО: Указываем правильный путь к Python 3.11
 hostpython3 = /usr/local/bin/python3.11
 
 p4a.local_recipes = ./p4a-recipes
@@ -30,6 +31,9 @@ android.archs = arm64-v8a, armeabi-v7a
 android.enable_androidx = True
 android.auto_sign = True
 android.accept_sdk_license = True
+
+# Добавляем переменные окружения
+android.env = USE_X11=0,KIVY_GL_BACKEND=sdl2,KIVY_NO_X11=1,KIVY_USE_X11=0
 
 [buildozer]
 
