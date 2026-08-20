@@ -12,12 +12,17 @@ class HostPython3Recipe(Recipe):
         return False
 
     def download_if_necessary(self):
-        """Переопределяем - не скачиваем ничего"""
+        """Полностью отключаем скачивание Python"""
+        info('HostPython3: using system python, skipping download')
+        return
+
+    def download(self):
+        """Отключаем скачивание"""
         info('HostPython3: using system python, skipping download')
         return
 
     def build_arch(self, arch):
-        """Ничего не строим, используем системный"""
+        """Ничего не строим, используем системный Python"""
         info('HostPython3: using system python, skipping build')
         pass
 
