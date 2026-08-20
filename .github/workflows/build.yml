@@ -21,7 +21,7 @@ jobs:
 
       - name: Build APK with Docker
         run: |
-          docker run --rm -v "$PWD:/app" builder buildozer android debug deploy run
+          docker run --rm -v "$PWD:/app" -w /app builder buildozer android debug deploy run
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
