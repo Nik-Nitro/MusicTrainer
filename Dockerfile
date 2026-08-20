@@ -27,6 +27,7 @@ RUN apt-get update && apt-get install -y \
     libblas-dev liblapack-dev gfortran \
     patchelf \
     ninja-build \
+    sudo \
     && rm -rf /var/lib/apt/lists/* && apt-get clean
 
 RUN git config --global http.postBuffer 524288000 && \
@@ -47,7 +48,8 @@ RUN useradd -m -u 1000 builder \
     && mkdir -p /home/builder/.buildozer \
     && touch /home/builder/.buildozer/default.spec \
     && chown -R builder:builder /home/builder \
-    && chmod -R 755 /home/builder
+    && chmod -R 755 /home/builder \
+    && echo "builder ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 
 USER builder
 WORKDIR /app
