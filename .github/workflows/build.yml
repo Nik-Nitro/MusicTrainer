@@ -19,6 +19,10 @@ jobs:
         run: |
           docker build -t builder .
 
+      - name: Check Python path
+        run: |
+          docker run --rm -v "$PWD:/app" -w /app builder sh -c "which python3 && python3 -c 'import sys; print(sys.executable)'"
+
       - name: Build APK with Docker
         run: |
           docker run --rm -v "$PWD:/app" -w /app --user root builder sh -c "chown -R builder:builder /app && su builder -c 'buildozer android debug deploy run'"
