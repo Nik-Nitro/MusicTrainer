@@ -21,13 +21,13 @@ RUN apt-get update && apt-get install -y \
     sudo \
     && rm -rf /var/lib/apt/lists/* && apt-get clean
 
-# Создаем пользователя
+# Создаем пользователя с UID 1000 (как в GitHub Actions)
 RUN useradd -m -u 1000 builder && \
     echo "builder ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 
 USER builder
 
-# Устанавливаем зависимости с фиксированными версиями
+# Устанавливаем зависимости
 RUN pip install --user \
     buildozer==1.6.0 \
     setuptools==69.5.1 \
@@ -38,5 +38,7 @@ RUN pip install --user \
 
 ENV PATH="/home/builder/.local/bin:${PATH}"
 
-# Создаем рабочую директорию
 WORKDIR /app
+
+# Добавляем скрипт для правильной работы с правами
+RUN mkdir -p /home/builder/.buildozer
