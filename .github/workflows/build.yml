@@ -14,7 +14,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Build APK using official Buildozer image
+      - name: Build APK
         run: |
           docker run --rm \
             -v "$PWD:/home/user/hostcwd" \
