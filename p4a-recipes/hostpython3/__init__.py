@@ -15,19 +15,19 @@ class HostPython3Recipe(Recipe):
         pass
 
     def get_path_to_python(self):
-        return '/usr/bin/python3.11'
+        return '/usr/local/bin/python3.11'
 
     @property
     def python_exe(self):
-        return '/usr/bin/python3.11'
+        return '/usr/local/bin/python3.11'
 
     @property
     def local_bin(self):
-        return '/usr/bin'
+        return '/usr/local/bin'
 
     @property
     def site_bin(self):
-        return '/usr/bin'
+        return '/usr/local/bin'
 
     @property
     def site_dir(self):
@@ -35,15 +35,15 @@ class HostPython3Recipe(Recipe):
         for path in sys.path:
             if 'site-packages' in path:
                 return path
-        return '/usr/lib/python3.11/site-packages'
+        return '/usr/local/lib/python3.11/site-packages'
 
     @property
     def pip(self):
-        return sh.Command('/usr/bin/pip3.11')
+        return sh.Command('/usr/local/bin/pip3.11')
 
     @property
     def python(self):
-        return sh.Command('/usr/bin/python3.11')
+        return sh.Command('/usr/local/bin/python3.11')
 
     def get_build_dir(self, arch_name):
         return os.path.join(self.ctx.build_dir, 'other_builds', 'hostpython3', arch_name)
