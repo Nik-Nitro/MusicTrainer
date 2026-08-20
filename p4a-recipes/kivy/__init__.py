@@ -1,6 +1,7 @@
 from pythonforandroid.recipe import CythonRecipe
 from pythonforandroid.logger import info
 import os
+import shutil
 
 class KivyRecipe(CythonRecipe):
     name = 'kivy'
@@ -11,9 +12,20 @@ class KivyRecipe(CythonRecipe):
     def prebuild_arch(self, arch):
         super().prebuild_arch(arch)
         
-        # Удаляем X11-файлы
+        # Удаляем все X11-файлы
         build_dir = self.get_build_dir(arch.arch)
-        window_dir = os.path.join(build_dir, 'kivy', 'core', 'window')
+        kivy_dir = os.path.join(build_dir, 'kivy')
+        
+        # Удаляем все файлы с x11 в названии
+        for root, dirs, files in os.walk(kivy_dir):
+            for f in files:
+                if 'x11' in f.lower():
+                    file_path = os.path.join(root, f)
+                    info(f'Removing X11 file: {file_path}')
+                    os.remove(file_path)
+        
+        # Удаляем папку window_x11 если есть
+        window_dir = os.path.join(kivy_dir, 'core', 'window')
         if os.path.exists(window_dir):
             for f in os.listdir(window_dir):
                 if 'x11' in f.lower():
