@@ -3,7 +3,7 @@ name: Build Android APK
 on:
   push:
     branches: [ main ]
-  workflow_dispatch:  # Чтобы можно было запустить вручную
+  workflow_dispatch:
 
 jobs:
   build-android:
@@ -14,32 +14,17 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Build APK using official Kivy Buildozer image
+      - name: Build APK
         run: |
           docker run --rm \
             -v "$PWD:/home/user/hostcwd" \
+            -w /home/user/hostcwd \
             -e USE_X11=0 \
             -e KIVY_GL_BACKEND=sdl2 \
             -e KIVY_NO_X11=1 \
             -e KIVY_USE_X11=0 \
             kivy/buildozer:latest \
-            bash -c "
-              cd /home/user/hostcwd
-              echo '=== Current directory ==='
-              pwd
-              ls -la
-              
-              echo '=== Checking config files ==='
-              ls -la buildozer.spec setup.py p4a-recipes/kivy/__init__.py || echo 'Some files missing!'
-              
-              echo '=== Cleaning previous builds ==='
-              rm -rf .buildozer/ bin/
-              
-              echo '=== Starting build ==='
-              buildozer android debug --verbose 2>&1 | tee build.log
-              
-              echo '=== Build finished ==='
-            "
+            android debug --verbose
 
       - name: Upload APK
         if: success()
