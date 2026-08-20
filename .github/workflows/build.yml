@@ -1,30 +1,24 @@
-name: Build Android APK
-
-on:
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
-
-jobs:
-  build-android:
-    name: Build APK with Buildozer
-    runs-on: ubuntu-22.04
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Build Docker image
-        run: |
-          docker build -t builder .
-
-      - name: Build APK with Docker
-        run: |
-          docker run --rm -v "$PWD:/app" -w /app --user root builder sh -c "chown -R builder:builder /app && su builder -c 'buildozer android debug deploy run'"
-
-      - name: Upload APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: musictrainer-apk
-          path: bin/*.apk
+- name: Remove X11 files from Kivy source BEFORE build
+  run: |
+    docker run --rm -v "$PWD:/app" -w /app builder sh -c "
+      echo '=== Removing X11 files from Kivy source ==='
+      
+      # Ищем папку с распакованным Kivy
+      KIVY_DIR=$(find .buildozer -path '*/kivy/core/window' -type d 2>/dev/null | head -1 | sed 's|/core/window||')
+      
+      if [ -n \"\$KIVY_DIR\" ]; then
+        echo \"Found Kivy directory: \$KIVY_DIR\"
+        
+        # Удаляем все X11 файлы
+        find \"\$KIVY_DIR\" -name '*x11*' -type f -delete -print 2>/dev/null
+        
+        # Создаём пустой файл-заглушку
+        mkdir -p \"\$KIVY_DIR/kivy/core/window\"
+        echo '# Dummy file to prevent X11 compilation' > \"\$KIVY_DIR/kivy/core/window/window_x11.pyx\"
+        
+        echo '✅ X11 files removed'
+      else
+        echo '❌ Kivy directory not found'
+        find .buildozer -name 'window_*' -type f 2>/dev/null | head -10
+      fi
+    "
