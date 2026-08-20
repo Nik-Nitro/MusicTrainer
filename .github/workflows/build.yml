@@ -19,13 +19,54 @@ jobs:
         run: |
           docker build -t builder .
 
-      - name: Check Python path
+      - name: Find Python 3.11 path
+        id: find_python
         run: |
-          docker run --rm -v "$PWD:/app" -w /app builder sh -c "which python3.11 && python3.11 --version"
+          docker run --rm -v "$PWD:/app" -w /app builder sh -c "
+            echo '=== Searching for Python 3.11 ==='
+            
+            # Проверяем возможные пути
+            PATHS_TO_CHECK=\"
+              /opt/hostedtoolcache/Python/3.11.16/x64/bin/python3.11
+              /opt/hostedtoolcache/Python/3.11.16/x64/bin/python3
+              /usr/bin/python3.11
+              /usr/local/bin/python3.11
+              /usr/bin/python3
+            \"
+            
+            FOUND_PATH=\"\"
+            for path in \$PATHS_TO_CHECK; do
+              if [ -f \"\$path\" ]; then
+                VERSION=\$(\$path --version 2>&1 | grep -o '3\.[0-9]\+')
+                if [ \"\$VERSION\" = \"3.11\" ]; then
+                  FOUND_PATH=\"\$path\"
+                  echo \"✅ Found Python 3.11 at: \$path\"
+                  break
+                fi
+              fi
+            done
+            
+            if [ -z \"\$FOUND_PATH\" ]; then
+              echo \"❌ Python 3.11 not found in standard locations\"
+              echo \"Searching in /opt and /usr...\"
+              find /opt /usr -name python3.11 2>/dev/null | head -5
+              exit 1
+            fi
+            
+            echo \"PYTHON_PATH=\$FOUND_PATH\" >> \$GITHUB_ENV
+          "
+
+      - name: Verify Python path
+        run: |
+          echo "Using Python: ${{ env.PYTHON_PATH }}"
+          docker run --rm -v "$PWD:/app" -w /app builder sh -c "${{ env.PYTHON_PATH }} --version"
 
       - name: Build APK with Docker
         run: |
-          docker run --rm -v "$PWD:/app" -w /app --user root builder sh -c "chown -R builder:builder /app && su builder -c 'buildozer android debug deploy run'"
+          docker run --rm -v "$PWD:/app" -w /app --user root builder sh -c "
+            chown -R builder:builder /app && 
+            su builder -c 'buildozer android debug deploy run'
+          "
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
