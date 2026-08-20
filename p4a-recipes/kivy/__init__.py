@@ -1,6 +1,7 @@
 from pythonforandroid.recipe import CythonRecipe
 from pythonforandroid.logger import info
 import os
+import re
 
 class KivyRecipe(CythonRecipe):
     name = 'kivy'
@@ -12,22 +13,29 @@ class KivyRecipe(CythonRecipe):
         super().prebuild_arch(arch)
         
         build_dir = self.get_build_dir(arch.arch)
-        info(f'Build dir: {build_dir}')
+        setup_py = os.path.join(build_dir, 'kivy', 'setup.py')
         
-        # Ищем и удаляем все X11 файлы
-        for root, dirs, files in os.walk(build_dir):
-            for f in files:
-                if 'x11' in f.lower():
-                    file_path = os.path.join(root, f)
-                    info(f'Removing X11 file: {file_path}')
-                    os.remove(file_path)
+        # Модифицируем setup.py, чтобы исключить X11
+        if os.path.exists(setup_py):
+            with open(setup_py, 'r') as f:
+                content = f.read()
+            
+            # Ищем список window бэкендов и удаляем x11
+            # Это примерное решение, нужно смотреть на реальный setup.py
+            content = content.replace("'x11'", "''")
+            content = content.replace('"x11"', '""')
+            
+            with open(setup_py, 'w') as f:
+                f.write(content)
+            info('Modified setup.py to exclude X11')
         
-        # Создаём заглушку для window_x11.pyx
+        # Удаляем X11 файлы (на всякий случай)
         window_dir = os.path.join(build_dir, 'kivy', 'core', 'window')
         if os.path.exists(window_dir):
-            dummy_path = os.path.join(window_dir, 'window_x11.pyx')
-            with open(dummy_path, 'w') as f:
-                f.write('# Dummy file to prevent X11 compilation\n')
+            for f in os.listdir(window_dir):
+                if 'x11' in f.lower():
+                    os.remove(os.path.join(window_dir, f))
+                    info(f'Removed X11 file: {f}')
 
     def get_recipe_env(self, arch):
         env = super().get_recipe_env(arch)
