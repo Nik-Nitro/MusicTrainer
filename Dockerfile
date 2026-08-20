@@ -16,9 +16,15 @@ RUN apt-get update && apt-get install -y \
     ninja-build \
     && rm -rf /var/lib/apt/lists/* && apt-get clean
 
-RUN pip install buildozer==1.6.0 \
+RUN useradd -m -u 1000 builder
+
+USER builder
+
+RUN pip install --user buildozer==1.6.0 \
                 setuptools==69.5.1 \
                 wheel==0.43.0 \
                 python-for-android==2024.01.21 \
                 meson==1.4.0 \
                 cython==0.29.37
+
+ENV PATH="/home/builder/.local/bin:${PATH}"
