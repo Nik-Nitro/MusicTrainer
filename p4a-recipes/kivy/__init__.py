@@ -1,7 +1,6 @@
 from pythonforandroid.recipe import CythonRecipe
 from pythonforandroid.logger import info
 import os
-import re
 
 class KivyRecipe(CythonRecipe):
     name = 'kivy'
@@ -13,29 +12,36 @@ class KivyRecipe(CythonRecipe):
         super().prebuild_arch(arch)
         
         build_dir = self.get_build_dir(arch.arch)
-        setup_py = os.path.join(build_dir, 'kivy', 'setup.py')
+        self._remove_x11_files(build_dir)
+        info('✅ X11 removed during prebuild')
+
+    def build_arch(self, arch):
+        # Вызываем перед сборкой
+        build_dir = self.get_build_dir(arch.arch)
+        self._remove_x11_files(build_dir)
+        info('✅ X11 removed during build')
         
-        # Модифицируем setup.py, чтобы исключить X11
-        if os.path.exists(setup_py):
-            with open(setup_py, 'r') as f:
-                content = f.read()
-            
-            # Ищем список window бэкендов и удаляем x11
-            # Это примерное решение, нужно смотреть на реальный setup.py
-            content = content.replace("'x11'", "''")
-            content = content.replace('"x11"', '""')
-            
-            with open(setup_py, 'w') as f:
-                f.write(content)
-            info('Modified setup.py to exclude X11')
-        
-        # Удаляем X11 файлы (на всякий случай)
+        # Продолжаем сборку
+        super().build_arch(arch)
+
+    def _remove_x11_files(self, build_dir):
         window_dir = os.path.join(build_dir, 'kivy', 'core', 'window')
         if os.path.exists(window_dir):
             for f in os.listdir(window_dir):
                 if 'x11' in f.lower():
-                    os.remove(os.path.join(window_dir, f))
-                    info(f'Removed X11 file: {f}')
+                    file_path = os.path.join(window_dir, f)
+                    if os.path.isfile(file_path):
+                        os.remove(file_path)
+                        info(f'Removed X11 file: {f}')
+        
+        # Удаляем рекурсивно все X11 файлы
+        for root, dirs, files in os.walk(build_dir):
+            for f in files:
+                if 'x11' in f.lower():
+                    file_path = os.path.join(root, f)
+                    if os.path.isfile(file_path):
+                        os.remove(file_path)
+                        info(f'Removed X11 file: {file_path}')
 
     def get_recipe_env(self, arch):
         env = super().get_recipe_env(arch)
