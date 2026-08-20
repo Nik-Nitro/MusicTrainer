@@ -1,9 +1,7 @@
 from pythonforandroid.recipe import Recipe
 from pythonforandroid.logger import info
-from pythonforandroid.util import shprint
 import os
 import sys
-import subprocess
 
 class HostPython3Recipe(Recipe):
     name = 'hostpython3'
@@ -51,22 +49,14 @@ class HostPython3Recipe(Recipe):
                 return path
         return '/usr/local/lib/python3.11/site-packages'
 
-    # ИСПРАВЛЯЕМ: pip должен быть функцией
+    # ПРОСТЫЕ СТРОКИ
     @property
     def pip(self):
-        def pip_command(*args, **kwargs):
-            """Запускает pip3.11 с переданными аргументами"""
-            cmd = ['/usr/local/bin/pip3.11'] + list(args)
-            return subprocess.check_call(cmd, **kwargs)
-        return pip_command
+        return '/usr/local/bin/pip3.11'
 
     @property
     def python(self):
-        def python_command(*args, **kwargs):
-            """Запускает python3.11 с переданными аргументами"""
-            cmd = [self.get_path_to_python()] + list(args)
-            return subprocess.check_call(cmd, **kwargs)
-        return python_command
+        return self.get_path_to_python()
 
     def get_build_dir(self, arch_name):
         return os.path.join(self.ctx.build_dir, 'other_builds', 'hostpython3', arch_name)
