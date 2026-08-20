@@ -15,12 +15,11 @@ class HostPython3Recipe(Recipe):
         pass
 
     def get_path_to_python(self):
-        # Для GitHub Actions путь к Python 3.11
-        return '/usr/bin/python3'
+        return '/usr/bin/python3.11'
 
     @property
     def python_exe(self):
-        return '/usr/bin/python3'
+        return '/usr/bin/python3.11'
 
     @property
     def local_bin(self):
@@ -40,11 +39,11 @@ class HostPython3Recipe(Recipe):
 
     @property
     def pip(self):
-        return sh.Command('/usr/bin/pip3')
+        return sh.Command('/usr/bin/pip3.11')
 
     @property
     def python(self):
-        return sh.Command('/usr/bin/python3')
+        return sh.Command('/usr/bin/python3.11')
 
     def get_build_dir(self, arch_name):
         return os.path.join(self.ctx.build_dir, 'other_builds', 'hostpython3', arch_name)
