@@ -25,14 +25,16 @@ android.api = 30
 android.minapi = 24
 android.ndk_api = 24
 android.sdk = 33
-android.ndk = 23c
+
+# МЕНЯЕМ НА 25c (или 28c)
+android.ndk = 25c
 android.build_tools = 33.0.2
 android.archs = arm64-v8a
 android.enable_androidx = True
 android.auto_sign = True
 android.accept_sdk_license = True
 
-# Переменные для отключения X11
+# Отключаем X11
 android.env = USE_X11=0,KIVY_GL_BACKEND=sdl2,KIVY_NO_X11=1,KIVY_USE_X11=0
 
 [buildozer]
