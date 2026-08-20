@@ -11,7 +11,6 @@ source.exclude_exts = spec,db,pyc,pyo
 source.exclude_dirs = tests, __pycache__, .git, .buildozer, to_delete_backup
 source.include_patterns = data/*, exercises/*, screens/*, core/*, ui/*
 
-# Указываем полную версию Python ИЛИ убираем версию
 requirements = python3==3.11.0,kivy==2.1.0,pygame==2.6.1,numpy
 
 hostpython3 = /usr/local/bin/python3.11
