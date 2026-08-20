@@ -30,6 +30,9 @@ RUN apt-get update && apt-get install -y \
     sudo \
     && rm -rf /var/lib/apt/lists/* && apt-get clean
 
+# ВАЖНО: Создаем симлинк для python3 -> python3.11
+RUN ln -sf /usr/local/bin/python3.11 /usr/local/bin/python3
+
 RUN git config --global http.postBuffer 524288000 && \
     git config --global http.lowSpeedLimit 0 && \
     git config --global http.lowSpeedTime 999999
