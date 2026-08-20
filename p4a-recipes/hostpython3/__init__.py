@@ -2,6 +2,7 @@ from pythonforandroid.recipe import Recipe
 from pythonforandroid.logger import info
 import os
 import sh
+import sys
 
 class HostPython3Recipe(Recipe):
     name = 'hostpython3'
@@ -12,26 +13,30 @@ class HostPython3Recipe(Recipe):
         return False
 
     def download_if_necessary(self):
-        """Полностью отключаем скачивание Python"""
         info('HostPython3: using system python, skipping download')
         return
 
     def download(self):
-        """Отключаем скачивание"""
         info('HostPython3: using system python, skipping download')
         return
 
     def build_arch(self, arch):
-        """Ничего не строим, используем системный Python"""
         info('HostPython3: using system python, skipping build')
         pass
 
     def get_path_to_python(self):
-        return '/usr/local/bin/python3.11'
+        # Пытаемся найти Python в системе
+        for path in ['/usr/bin/python3.11', '/usr/bin/python3', '/home/user/.venv/bin/python3']:
+            if os.path.exists(path):
+                info(f'HostPython3: found python at {path}')
+                return path
+        # Если не нашли - используем sys.executable
+        info(f'HostPython3: using sys.executable: {sys.executable}')
+        return sys.executable
 
     @property
     def python_exe(self):
-        return '/usr/local/bin/python3.11'
+        return self.get_path_to_python()
 
     @property
     def local_bin(self):
@@ -51,11 +56,11 @@ class HostPython3Recipe(Recipe):
 
     @property
     def pip(self):
-        return sh.Command('/usr/local/bin/pip3.11')
+        return sh.Command(self.get_path_to_python(), '-m', 'pip')
 
     @property
     def python(self):
-        return sh.Command('/usr/local/bin/python3.11')
+        return sh.Command(self.get_path_to_python())
 
     def get_build_dir(self, arch_name):
         return os.path.join(self.ctx.build_dir, 'other_builds', 'hostpython3', arch_name)
