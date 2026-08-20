@@ -23,8 +23,18 @@ jobs:
             -e KIVY_GL_BACKEND=sdl2 \
             -e KIVY_NO_X11=1 \
             -e KIVY_USE_X11=0 \
+            --entrypoint /bin/bash \
             kivy/buildozer:latest \
-            android debug --verbose
+            -c "
+              cd /home/user/hostcwd
+              # Проверяем файлы
+              echo '=== Checking files ==='
+              ls -la
+              echo '=== Checking buildozer.spec ==='
+              head -20 buildozer.spec || echo 'buildozer.spec not found!'
+              echo '=== Run buildozer ==='
+              buildozer android debug --verbose
+            "
 
       - name: Upload APK
         if: success()
