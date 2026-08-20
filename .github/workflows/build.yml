@@ -21,7 +21,7 @@ jobs:
 
       - name: Check Python path
         run: |
-          docker run --rm -v "$PWD:/app" -w /app builder sh -c "which python3 && python3 -c 'import sys; print(sys.executable)'"
+          docker run --rm -v "$PWD:/app" -w /app builder sh -c "which python3.11 && python3.11 --version"
 
       - name: Build APK with Docker
         run: |
