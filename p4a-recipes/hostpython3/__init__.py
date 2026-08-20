@@ -24,13 +24,18 @@ class HostPython3Recipe(Recipe):
         return
 
     def get_path_to_python(self):
-        # Используем Python 3.11 из контейнера
+        """Возвращает путь к Python 3.11"""
         python_path = '/usr/local/bin/python3.11'
         if os.path.exists(python_path):
             info(f'HostPython3: found python at {python_path}')
             return python_path
         # fallback
         return sys.executable
+
+    # ВАЖНО: Добавляем property python_exe
+    @property
+    def python_exe(self):
+        return self.get_path_to_python()
 
     def get_build_dir(self, arch_name):
         return os.path.join(self.ctx.build_dir, 'other_builds', 'hostpython3', arch_name)
