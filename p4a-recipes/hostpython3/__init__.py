@@ -7,11 +7,18 @@ class HostPython3Recipe(Recipe):
     name = 'hostpython3'
     version = '3.11'
     url = None
-
+    
     def should_build(self, arch):
         return False
 
+    def download_if_necessary(self):
+        """Переопределяем - не скачиваем ничего"""
+        info('HostPython3: using system python, skipping download')
+        return
+
     def build_arch(self, arch):
+        """Ничего не строим, используем системный"""
+        info('HostPython3: using system python, skipping build')
         pass
 
     def get_path_to_python(self):
