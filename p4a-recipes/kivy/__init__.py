@@ -8,8 +8,8 @@ class KivyRecipe(MesonRecipe):
     url = 'https://github.com/kivy/kivy/archive/{version}.zip'
     depends = ['python3', 'sdl2', 'pygame']
 
-    def get_recipe_env(self, arch):
-        env = super().get_recipe_env(arch)
+    def get_recipe_env(self, arch, with_flags_in_cc=True):
+        env = super().get_recipe_env(arch, with_flags_in_cc=with_flags_in_cc)
         
         # Отключаем X11
         env['USE_X11'] = '0'
@@ -29,14 +29,5 @@ class KivyRecipe(MesonRecipe):
         env['CXXFLAGS'] = env.get('CXXFLAGS', '') + f' -I{python_include}'
         
         return env
-
-    def get_meson_options(self, arch):
-        """Возвращает опции для Meson"""
-        return [
-            '-Duse_x11=disabled',
-            '-Duse_sdl2=enabled',
-            '-Dgl_backend=sdl2',
-            f'-Dpython_include_dir={self.ctx.get_python_install_dir(arch.arch)}/android-build/android-root/include/python3.11',
-        ]
 
 recipe = KivyRecipe()
