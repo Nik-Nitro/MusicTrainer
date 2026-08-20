@@ -1,10 +1,19 @@
 FROM python:3.11-slim
 
-ENV URL_python3=https://github.com/python/cpython/archive/refs/tags/v3.11.0.tar.gz
-ENV USE_X11=0
-ENV KIVY_GL_BACKEND=sdl2
-ENV KIVY_NO_X11=1
-ENV KIVY_USE_X11=0
+ENV PYTHON_VERSION=3.11 \
+    LANG=C.UTF-8 \
+    LC_ALL=C.UTF-8 \
+    DEBIAN_FRONTEND=noninteractive \
+    PYTHONUNBUFFERED=1 \
+    PIP_NO_CACHE_DIR=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1 \
+    HOSTPYTHON=/usr/local/bin/python3.11 \
+    HOSTPYTHON_VERSION=3.11 \
+    ANDROID_HOME=/home/builder/.buildozer/android/platform/android-sdk \
+    ANDROID_SDK_ROOT=/home/builder/.buildozer/android/platform/android-sdk \
+    URL_python3=https://github.com/python/cpython/archive/refs/tags/v3.11.0.tar.gz
+
+RUN python3 --version && echo "Python version is 3.11"
 
 RUN apt-get update && apt-get install -y \
     git zip unzip wget curl make \
@@ -13,22 +22,18 @@ RUN apt-get update && apt-get install -y \
     zlib1g-dev libncurses5-dev libncursesw5-dev \
     cmake libffi-dev libssl-dev \
     libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev \
-    libgl1-mesa-dev libgles2-mesa-dev \
+    libgl1-mesa-dev \
     portaudio19-dev \
     libblas-dev liblapack-dev gfortran \
     patchelf \
     ninja-build \
-    sudo \
     && rm -rf /var/lib/apt/lists/* && apt-get clean
 
-# Создаем пользователя с UID 1000 (как в GitHub Actions)
-RUN useradd -m -u 1000 builder && \
-    echo "builder ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
+RUN git config --global http.postBuffer 524288000 && \
+    git config --global http.lowSpeedLimit 0 && \
+    git config --global http.lowSpeedTime 999999
 
-USER builder
-
-# Устанавливаем зависимости
-RUN pip install --user \
+RUN pip install --no-cache-dir \
     buildozer==1.6.0 \
     setuptools==69.5.1 \
     wheel==0.43.0 \
@@ -36,9 +41,24 @@ RUN pip install --user \
     meson==1.4.0 \
     cython==0.29.37
 
-ENV PATH="/home/builder/.local/bin:${PATH}"
+RUN python3 -c "import sys; print(f'Python {sys.version}')" && pip list --version
 
+RUN useradd -m -u 1000 builder \
+    && mkdir -p /home/builder/.buildozer \
+    && touch /home/builder/.buildozer/default.spec \
+    && chown -R builder:builder /home/builder \
+    && chmod -R 755 /home/builder
+
+USER builder
 WORKDIR /app
 
-# Добавляем скрипт для правильной работы с правами
-RUN mkdir -p /home/builder/.buildozer
+RUN git config --global --add safe.directory '*' \
+    && git config --global user.email "builder@local" \
+    && git config --global user.name "Builder" \
+    && git config --global http.postBuffer 524288000
+
+ENV TERM=xterm-256color \
+    USE_X11=0 \
+    KIVY_GL_BACKEND=sdl2 \
+    KIVY_NO_X11=1 \
+    KIVY_USE_X11=0
