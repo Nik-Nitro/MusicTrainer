@@ -8,27 +8,31 @@ class KivyRecipe(CythonRecipe):
     url = 'https://github.com/kivy/kivy/archive/{version}.zip'
     depends = ['python3', 'sdl2', 'pygame']
 
+    def prebuild_arch(self, arch):
+        super().prebuild_arch(arch)
+        
+        build_dir = self.get_build_dir(arch.arch)
+        info(f'Build dir: {build_dir}')
+        
+        # Ищем и удаляем все X11 файлы
+        for root, dirs, files in os.walk(build_dir):
+            for f in files:
+                if 'x11' in f.lower():
+                    file_path = os.path.join(root, f)
+                    info(f'Removing X11 file: {file_path}')
+                    os.remove(file_path)
+        
+        # Создаём заглушку для window_x11.pyx
+        window_dir = os.path.join(build_dir, 'kivy', 'core', 'window')
+        if os.path.exists(window_dir):
+            dummy_path = os.path.join(window_dir, 'window_x11.pyx')
+            with open(dummy_path, 'w') as f:
+                f.write('# Dummy file to prevent X11 compilation\n')
+
     def get_recipe_env(self, arch):
         env = super().get_recipe_env(arch)
-        
-        # 1. Явно запрещаем pkg-config искать X11
-        ndk_sysroot = self.ctx.ndk.sysroot
-        env['PKG_CONFIG_LIBDIR'] = f'{ndk_sysroot}/usr/lib/pkgconfig'
-        
-        # 2. Переопределяем CFLAGS, чтобы компилятор НЕ лез в /usr/include
-        env['CFLAGS'] = (
-            f'-target aarch64-linux-android24 '
-            f'-fPIC '
-            f'-I{ndk_sysroot}/usr/include '
-            f'-I{ndk_sysroot}/usr/include/aarch64-linux-android '
-            f'-I{self.ctx.get_python_install_dir(arch.arch)}/android-build/android-root/include/python3.11'
-        )
-        env['CXXFLAGS'] = env['CFLAGS']
-        
-        # 3. Отключаем X11 через переменные
         env['USE_X11'] = '0'
         env['KIVY_GL_BACKEND'] = 'sdl2'
-        
         return env
 
 recipe = KivyRecipe()
