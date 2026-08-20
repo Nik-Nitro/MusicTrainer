@@ -1,42 +1,43 @@
-[app]
+name: Build Android APK
 
-title = MusicTrainer
-package.name = musictrainer
-package.domain = org.niknitro
-version = 17.5
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
 
-source.dir = .
-source.include_exts = py,png,jpg,kv,atlas,json,md
-source.exclude_exts = spec,db,pyc,pyo
-source.exclude_dirs = tests, __pycache__, .git, .buildozer, to_delete_backup
-source.include_patterns = data/*, exercises/*, screens/*, core/*, ui/*
+jobs:
+  build-android:
+    name: Build APK with Buildozer
+    runs-on: ubuntu-22.04
 
-requirements = python3==3.11,kivy==2.1.0,pygame==2.6.1,numpy
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-hostpython3 = /usr/local/bin/python3.11
+      - name: Build APK
+        run: |
+          docker run --rm \
+            -v "$PWD:/home/user/hostcwd" \
+            -w /home/user/hostcwd \
+            -e USE_X11=0 \
+            -e KIVY_GL_BACKEND=sdl2 \
+            -e KIVY_NO_X11=1 \
+            -e KIVY_USE_X11=0 \
+            kivy/buildozer:latest \
+            android debug --verbose
 
-p4a.local_recipes = ./p4a-recipes
-ignore_setup_py = True
+      - name: Upload APK
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: musictrainer-apk
+          path: bin/*.apk
+          if-no-files-found: error
 
-orientation = portrait
-
-android.permissions = INTERNET, VIBRATE, RECORD_AUDIO, MODIFY_AUDIO_SETTINGS
-android.api = 30
-android.minapi = 24
-android.ndk_api = 24
-android.sdk = 33
-android.ndk = 23c
-android.build_tools = 33.0.2
-android.archs = arm64-v8a
-android.enable_androidx = True
-android.auto_sign = True
-android.accept_sdk_license = True
-
-# Добавляем переменные окружения
-android.env = USE_X11=0,KIVY_GL_BACKEND=sdl2,KIVY_NO_X11=1,KIVY_USE_X11=0
-
-[buildozer]
-
-log_level = 2
-build_dir = ./.buildozer
-bin_dir = ./bin
+      - name: Upload build log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-log
+          path: build.log
+          if-no-files-found: warn
