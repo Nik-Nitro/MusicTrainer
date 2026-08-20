@@ -11,11 +11,13 @@ source.exclude_exts = spec,db,pyc,pyo
 source.exclude_dirs = tests, __pycache__, .git, .buildozer, to_delete_backup
 source.include_patterns = data/*, exercises/*, screens/*, core/*, ui/*
 
-requirements = python3==3.11,kivy==2.1.0,pygame==2.6.1,numpy
+# МЕНЯЕМ KIVY НА 2.2.0
+requirements = python3==3.11,kivy==2.2.0,pygame==2.6.1,numpy
 
 hostpython3 = /usr/local/bin/python3.11
 
-p4a.local_recipes = ./p4a-recipes
+# УБИРАЕМ ЛОКАЛЬНЫЕ РЕЦЕПТЫ (для Kivy 2.2.0 используем стандартный)
+# p4a.local_recipes = ./p4a-recipes
 
 orientation = portrait
 
