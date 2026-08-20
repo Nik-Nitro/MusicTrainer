@@ -19,24 +19,10 @@ jobs:
         run: |
           docker build -t builder .
 
-      - name: Build APK with proper environment
+      - name: Create config files
         run: |
-          docker run --rm \
-            -v "$PWD:/app" \
-            -w /app \
-            --user builder \
-            -e USE_X11=0 \
-            -e KIVY_GL_BACKEND=sdl2 \
-            -e KIVY_NO_X11=1 \
-            -e KIVY_USE_X11=0 \
-            -e DISPLAY=:0 \
-            builder bash -c "
-              # Очищаем предыдущие сборки
-              rm -rf .buildozer/
-              rm -rf bin/
-              
-              # Создаем правильный buildozer.spec с NDK 23c
-              cat > buildozer.spec << 'EOF'
+          # Создаем buildozer.spec
+          cat > buildozer.spec << 'EOFSPEC'
 [app]
 
 title = MusicTrainer
@@ -80,10 +66,10 @@ android.accept_sdk_license = True
 log_level = 2
 build_dir = ./.buildozer
 bin_dir = ./bin
-EOF
+EOFSPEC
 
-              # Создаем правильный setup.py
-              cat > setup.py << 'EOF'
+          # Создаем setup.py
+          cat > setup.py << 'EOFPY'
 import os
 
 # Отключаем X11 на уровне Python
@@ -94,11 +80,11 @@ os.environ['KIVY_USE_X11'] = '0'
 
 from setuptools import setup
 setup()
-EOF
+EOFPY
 
-              # Создаем локальный рецепт для Kivy
-              mkdir -p p4a-recipes/kivy
-              cat > p4a-recipes/kivy/__init__.py << 'EOF'
+          # Создаем локальный рецепт для Kivy
+          mkdir -p p4a-recipes/kivy
+          cat > p4a-recipes/kivy/__init__.py << 'EOFRECIPE'
 from pythonforandroid.recipe import PythonRecipe
 import os
 
@@ -134,14 +120,29 @@ os.environ['KIVY_USE_X11'] = '0'
         super().build_arch(arch)
 
 recipe = KivyRecipe()
-EOF
+EOFRECIPE
 
-              # Запускаем сборку с правильными переменными
-              export USE_X11=0
-              export KIVY_GL_BACKEND=sdl2
-              export KIVY_NO_X11=1
-              export KIVY_USE_X11=0
+      - name: Build APK with Docker
+        run: |
+          docker run --rm \
+            -v "$PWD:/app" \
+            -w /app \
+            --user builder \
+            -e USE_X11=0 \
+            -e KIVY_GL_BACKEND=sdl2 \
+            -e KIVY_NO_X11=1 \
+            -e KIVY_USE_X11=0 \
+            builder bash -c "
+              # Очищаем предыдущие сборки
+              rm -rf .buildozer/ bin/
               
+              # Проверяем наличие файлов
+              echo '=== Checking files ==='
+              ls -la buildozer.spec
+              ls -la setup.py
+              ls -la p4a-recipes/kivy/__init__.py
+              
+              # Запускаем сборку
               buildozer android debug --verbose 2>&1 | tee build.log
             "
 
