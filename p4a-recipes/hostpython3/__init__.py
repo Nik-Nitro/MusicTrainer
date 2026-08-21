@@ -65,14 +65,14 @@ class HostPython3Recipe(Recipe):
                 new_env.update(env)
                 kwargs['env'] = new_env
             
-            # ИГНОРИРУЕМ ВСЕ СПЕЦИАЛЬНЫЕ ПАРАМЕТРЫ P4A
+            # Игнорируем все специальные параметры p4a
             kwargs.pop('_iter', None)
             kwargs.pop('_spawn', None)
             kwargs.pop('_bg', None)
             kwargs.pop('_tee', None)
             kwargs.pop('_fg', None)
-            kwargs.pop('_out_bufsize', None)      # <-- ДОБАВЛЕНО!
-            kwargs.pop('_err_to_out', None)       # <-- ДОБАВЛЕНО!
+            kwargs.pop('_out_bufsize', None)
+            kwargs.pop('_err_to_out', None)
             kwargs.pop('_env', None)
             kwargs.pop('_timeout', None)
             kwargs.pop('_cwd', None)
@@ -85,7 +85,15 @@ class HostPython3Recipe(Recipe):
             info(f'HostPython3: pip final cmd: {cmd}')
             info(f'HostPython3: pip final kwargs: {kwargs}')
             
-            return subprocess.check_call(cmd, **kwargs)
+            # ВАЖНО: используем check_output, который возвращает вывод, а не код возврата
+            # Это нужно, потому что p4a ожидает итерируемый объект
+            try:
+                output = subprocess.check_output(cmd, **kwargs, text=True)
+                # Возвращаем вывод построчно (как итерируемый объект)
+                return output.splitlines()
+            except subprocess.CalledProcessError as e:
+                # Если ошибка, возвращаем вывод ошибки
+                return e.output.splitlines() if e.output else []
         return pip_command
 
     @property
@@ -98,14 +106,13 @@ class HostPython3Recipe(Recipe):
                 new_env.update(env)
                 kwargs['env'] = new_env
             
-            # ИГНОРИРУЕМ ВСЕ СПЕЦИАЛЬНЫЕ ПАРАМЕТРЫ P4A
             kwargs.pop('_iter', None)
             kwargs.pop('_spawn', None)
             kwargs.pop('_bg', None)
             kwargs.pop('_tee', None)
             kwargs.pop('_fg', None)
-            kwargs.pop('_out_bufsize', None)      # <-- ДОБАВЛЕНО!
-            kwargs.pop('_err_to_out', None)       # <-- ДОБАВЛЕНО!
+            kwargs.pop('_out_bufsize', None)
+            kwargs.pop('_err_to_out', None)
             kwargs.pop('_env', None)
             kwargs.pop('_timeout', None)
             kwargs.pop('_cwd', None)
@@ -115,7 +122,11 @@ class HostPython3Recipe(Recipe):
             kwargs.pop('_with', None)
             kwargs.pop('_piped', None)
             
-            return subprocess.check_call(cmd, **kwargs)
+            try:
+                output = subprocess.check_output(cmd, **kwargs, text=True)
+                return output.splitlines()
+            except subprocess.CalledProcessError as e:
+                return e.output.splitlines() if e.output else []
         return python_command
 
     def get_build_dir(self, arch_name):
