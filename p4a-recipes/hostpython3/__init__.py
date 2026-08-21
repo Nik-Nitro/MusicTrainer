@@ -2,10 +2,11 @@ from pythonforandroid.recipe import Recipe
 from pythonforandroid.logger import info
 import os
 import sys
+import subprocess
 
 class HostPython3Recipe(Recipe):
     name = 'hostpython3'
-    version = '3.11.0'  # <-- ТОЧНАЯ ВЕРСИЯ, СОВПАДАЕТ С requirements
+    version = '3.11.0'
     url = None
     
     def should_build(self, arch):
@@ -24,12 +25,10 @@ class HostPython3Recipe(Recipe):
         return
 
     def get_path_to_python(self):
-        # Используем Python 3.11 из системы
         python_path = '/usr/local/bin/python3.11'
         if os.path.exists(python_path):
             info(f'HostPython3: found python at {python_path}')
             return python_path
-        # fallback
         return sys.executable
 
     @property
@@ -53,23 +52,37 @@ class HostPython3Recipe(Recipe):
 
     @property
     def pip(self):
-        # pip должен быть вызываемым объектом
-        import subprocess
         def pip_command(*args, **kwargs):
+            # ВЫВОДИМ ВСЕ АРГУМЕНТЫ ДЛЯ ДИАГНОСТИКИ
+            info(f'HostPython3: pip called with args: {args}')
+            info(f'HostPython3: pip called with kwargs: {kwargs}')
+            
             cmd = ['/usr/local/bin/pip3.11'] + list(args)
-            # Обрабатываем _env
+            
+            # Извлекаем все специальные аргументы p4a
+            # _env, _iter, и другие
             env = kwargs.pop('_env', None)
             if env:
                 import os
                 new_env = os.environ.copy()
                 new_env.update(env)
                 kwargs['env'] = new_env
+            
+            # Игнорируем остальные специальные аргументы p4a
+            kwargs.pop('_iter', None)
+            kwargs.pop('_spawn', None)
+            kwargs.pop('_bg', None)
+            kwargs.pop('_tee', None)
+            kwargs.pop('_fg', None)
+            
+            info(f'HostPython3: pip final cmd: {cmd}')
+            info(f'HostPython3: pip final kwargs: {kwargs}')
+            
             return subprocess.check_call(cmd, **kwargs)
         return pip_command
 
     @property
     def python(self):
-        import subprocess
         def python_command(*args, **kwargs):
             cmd = [self.get_path_to_python()] + list(args)
             env = kwargs.pop('_env', None)
@@ -78,6 +91,11 @@ class HostPython3Recipe(Recipe):
                 new_env = os.environ.copy()
                 new_env.update(env)
                 kwargs['env'] = new_env
+            kwargs.pop('_iter', None)
+            kwargs.pop('_spawn', None)
+            kwargs.pop('_bg', None)
+            kwargs.pop('_tee', None)
+            kwargs.pop('_fg', None)
             return subprocess.check_call(cmd, **kwargs)
         return python_command
 
