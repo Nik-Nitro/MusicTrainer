@@ -27,7 +27,8 @@ jobs:
           if [ -f "main.py" ]; then
             echo "✅ main.py найден!"
           else
-            echo "⚠️ main.py не найден, но может быть в распакованном архиве"
+            echo "⚠️ main.py не найден"
+            exit 1
           fi
 
       - name: Build Docker image
@@ -39,41 +40,16 @@ jobs:
           docker run --rm \
             -v "$PWD:/app" \
             -w /app \
-            --user root \
+            --user builder \
             -e USE_X11=0 \
             -e KIVY_GL_BACKEND=sdl2 \
             -e KIVY_NO_X11=1 \
             -e KIVY_USE_X11=0 \
             builder bash -c "
-              chown -R builder:builder /app
-              chmod -R 755 /app
-              
-              # Принимаем лицензии SDK и устанавливаем build-tools
-              su builder -c '
-                echo \"=== Принимаем лицензии SDK ===\"
-                export ANDROID_HOME=/home/builder/.buildozer/android/platform/android-sdk
-                export PATH=\$PATH:\$ANDROID_HOME/cmdline-tools/latest/bin:\$ANDROID_HOME/platform-tools
-                
-                # Принимаем лицензии
-                yes | sdkmanager --licenses || true
-                
-                # Устанавливаем build-tools
-                echo \"=== Устанавливаем build-tools ===\"
-                sdkmanager \"build-tools;33.0.2\" || true
-                sdkmanager \"platforms;android-30\" || true
-              '
-              
               cd /app
               rm -rf .buildozer/ bin/
               echo \"=== Starting build ===\"
-              su builder -c '
-                cd /app
-                export USE_X11=0
-                export KIVY_GL_BACKEND=sdl2
-                export KIVY_NO_X11=1
-                export KIVY_USE_X11=0
-                buildozer android debug --verbose 2>&1 | tee build.log
-              '
+              buildozer android debug --verbose 2>&1 | tee build.log
             "
 
       - name: Upload APK
