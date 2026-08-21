@@ -30,12 +30,29 @@ RUN apt-get update && apt-get install -y \
     sudo \
     && rm -rf /var/lib/apt/lists/* && apt-get clean
 
-# ВАЖНО: Создаем симлинк для python3 -> python3.11
 RUN ln -sf /usr/local/bin/python3.11 /usr/local/bin/python3
 
 RUN git config --global http.postBuffer 524288000 && \
     git config --global http.lowSpeedLimit 0 && \
     git config --global http.lowSpeedTime 999999
+
+# === НОВОЕ: Устанавливаем SDK Tools прямо в образ ===
+RUN mkdir -p /opt/android-sdk/cmdline-tools && \
+    cd /opt/android-sdk && \
+    wget -q https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip && \
+    unzip -q commandlinetools-linux-11076708_latest.zip -d cmdline-tools/ && \
+    rm commandlinetools-linux-11076708_latest.zip && \
+    mv cmdline-tools/cmdline-tools cmdline-tools/latest
+
+# Принимаем лицензии SDK
+RUN /opt/android-sdk/cmdline-tools/latest/bin/sdkmanager --licenses --sdk_root=/opt/android-sdk <<< "y" || true
+
+# Устанавливаем build-tools
+RUN /opt/android-sdk/cmdline-tools/latest/bin/sdkmanager \
+    "build-tools;33.0.2" \
+    "platforms;android-30" \
+    --sdk_root=/opt/android-sdk || true
+# === КОНЕЦ НОВОГО ===
 
 RUN pip install --no-cache-dir \
     buildozer==1.6.0 \
@@ -47,7 +64,6 @@ RUN pip install --no-cache-dir \
 
 RUN python3 -c "import sys; print(f'Python {sys.version}')" && pip list --version
 
-# НОВОЕ: Создаем пользователя И принимаем лицензии SDK
 RUN useradd -m -u 1000 builder \
     && mkdir -p /home/builder/.buildozer \
     && mkdir -p /home/builder/.android \
@@ -56,6 +72,9 @@ RUN useradd -m -u 1000 builder \
     && chown -R builder:builder /home/builder \
     && chmod -R 755 /home/builder \
     && echo "builder ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+
+# Копируем SDK в домашнюю папку пользователя
+RUN cp -r /opt/android-sdk /home/builder/.buildozer/android/platform/android-sdk
 
 USER builder
 WORKDIR /app
