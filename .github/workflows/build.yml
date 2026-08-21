@@ -40,16 +40,23 @@ jobs:
           docker run --rm \
             -v "$PWD:/app" \
             -w /app \
-            --user builder \
+            --user root \
             -e USE_X11=0 \
             -e KIVY_GL_BACKEND=sdl2 \
             -e KIVY_NO_X11=1 \
             -e KIVY_USE_X11=0 \
             builder bash -c "
-              cd /app
-              rm -rf .buildozer/ bin/
-              echo \"=== Starting build ===\"
-              buildozer android debug --verbose 2>&1 | tee build.log
+              # Исправляем права для builder
+              chown -R builder:builder /app
+              chmod -R 755 /app
+              
+              # Запускаем сборку от builder
+              su builder -c '
+                cd /app
+                rm -rf .buildozer/ bin/
+                echo \"=== Starting build ===\"
+                buildozer android debug --verbose 2>&1 | tee build.log
+              '
             "
 
       - name: Upload APK
