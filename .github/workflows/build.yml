@@ -14,6 +14,22 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Unzip project files if needed
+        run: |
+          for zipfile in *.zip; do
+            if [ -f "$zipfile" ]; then
+              echo "📦 Распаковываем $zipfile..."
+              unzip -o "$zipfile" -d ./
+              rm "$zipfile"
+              echo "✅ Архив распакован"
+            fi
+          done
+          if [ -f "main.py" ]; then
+            echo "✅ main.py найден!"
+          else
+            echo "⚠️ main.py не найден, но может быть в распакованном архиве"
+          fi
+
       - name: Build Docker image
         run: |
           docker build -t builder .
@@ -31,10 +47,31 @@ jobs:
             builder bash -c "
               chown -R builder:builder /app
               chmod -R 755 /app
-              sudo -u builder bash -c '
+              
+              # Принимаем лицензии SDK и устанавливаем build-tools
+              su builder -c '
+                echo \"=== Принимаем лицензии SDK ===\"
+                export ANDROID_HOME=/home/builder/.buildozer/android/platform/android-sdk
+                export PATH=\$PATH:\$ANDROID_HOME/cmdline-tools/latest/bin:\$ANDROID_HOME/platform-tools
+                
+                # Принимаем лицензии
+                yes | sdkmanager --licenses || true
+                
+                # Устанавливаем build-tools
+                echo \"=== Устанавливаем build-tools ===\"
+                sdkmanager \"build-tools;33.0.2\" || true
+                sdkmanager \"platforms;android-30\" || true
+              '
+              
+              cd /app
+              rm -rf .buildozer/ bin/
+              echo \"=== Starting build ===\"
+              su builder -c '
                 cd /app
-                rm -rf .buildozer/ bin/
-                echo \"=== Starting build ===\"
+                export USE_X11=0
+                export KIVY_GL_BACKEND=sdl2
+                export KIVY_NO_X11=1
+                export KIVY_USE_X11=0
                 buildozer android debug --verbose 2>&1 | tee build.log
               '
             "
