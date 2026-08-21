@@ -36,24 +36,6 @@ RUN git config --global http.postBuffer 524288000 && \
     git config --global http.lowSpeedLimit 0 && \
     git config --global http.lowSpeedTime 999999
 
-# === Устанавливаем SDK Tools прямо в образ ===
-RUN mkdir -p /opt/android-sdk/cmdline-tools && \
-    cd /opt/android-sdk && \
-    wget -q https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip && \
-    unzip -q commandlinetools-linux-11076708_latest.zip -d cmdline-tools/ && \
-    rm commandlinetools-linux-11076708_latest.zip && \
-    mv cmdline-tools/cmdline-tools cmdline-tools/latest
-
-# ИСПРАВЛЕНО: Принимаем лицензии SDK (используем echo вместо <<<)
-RUN echo "y" | /opt/android-sdk/cmdline-tools/latest/bin/sdkmanager --licenses --sdk_root=/opt/android-sdk || true
-
-# ИСПРАВЛЕНО: Устанавливаем build-tools с правильными опциями
-RUN /opt/android-sdk/cmdline-tools/latest/bin/sdkmanager \
-    "build-tools;33.0.2" \
-    "platforms;android-30" \
-    --sdk_root=/opt/android-sdk || true
-# === КОНЕЦ SDK ===
-
 RUN pip install --no-cache-dir \
     buildozer==1.6.0 \
     setuptools==69.5.1 \
@@ -72,9 +54,6 @@ RUN useradd -m -u 1000 builder \
     && chown -R builder:builder /home/builder \
     && chmod -R 755 /home/builder \
     && echo "builder ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
-
-# Копируем SDK в домашнюю папку пользователя
-RUN cp -r /opt/android-sdk /home/builder/.buildozer/android/platform/android-sdk
 
 USER builder
 WORKDIR /app
