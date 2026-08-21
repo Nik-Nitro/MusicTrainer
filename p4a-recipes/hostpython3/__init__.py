@@ -2,11 +2,10 @@ from pythonforandroid.recipe import Recipe
 from pythonforandroid.logger import info
 import os
 import sys
-import sh
 
 class HostPython3Recipe(Recipe):
     name = 'hostpython3'
-    version = '3.11'
+    version = '3.11.0'  # <-- ТОЧНАЯ ВЕРСИЯ, СОВПАДАЕТ С requirements
     url = None
     
     def should_build(self, arch):
@@ -25,10 +24,12 @@ class HostPython3Recipe(Recipe):
         return
 
     def get_path_to_python(self):
+        # Используем Python 3.11 из системы
         python_path = '/usr/local/bin/python3.11'
         if os.path.exists(python_path):
             info(f'HostPython3: found python at {python_path}')
             return python_path
+        # fallback
         return sys.executable
 
     @property
@@ -52,11 +53,33 @@ class HostPython3Recipe(Recipe):
 
     @property
     def pip(self):
-        return sh.Command('/usr/local/bin/pip3.11')
+        # pip должен быть вызываемым объектом
+        import subprocess
+        def pip_command(*args, **kwargs):
+            cmd = ['/usr/local/bin/pip3.11'] + list(args)
+            # Обрабатываем _env
+            env = kwargs.pop('_env', None)
+            if env:
+                import os
+                new_env = os.environ.copy()
+                new_env.update(env)
+                kwargs['env'] = new_env
+            return subprocess.check_call(cmd, **kwargs)
+        return pip_command
 
     @property
     def python(self):
-        return sh.Command(self.get_path_to_python())
+        import subprocess
+        def python_command(*args, **kwargs):
+            cmd = [self.get_path_to_python()] + list(args)
+            env = kwargs.pop('_env', None)
+            if env:
+                import os
+                new_env = os.environ.copy()
+                new_env.update(env)
+                kwargs['env'] = new_env
+            return subprocess.check_call(cmd, **kwargs)
+        return python_command
 
     def get_build_dir(self, arch_name):
         return os.path.join(self.ctx.build_dir, 'other_builds', 'hostpython3', arch_name)
