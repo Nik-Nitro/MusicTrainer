@@ -53,27 +53,34 @@ class HostPython3Recipe(Recipe):
     @property
     def pip(self):
         def pip_command(*args, **kwargs):
-            # ВЫВОДИМ ВСЕ АРГУМЕНТЫ ДЛЯ ДИАГНОСТИКИ
             info(f'HostPython3: pip called with args: {args}')
             info(f'HostPython3: pip called with kwargs: {kwargs}')
             
             cmd = ['/usr/local/bin/pip3.11'] + list(args)
             
-            # Извлекаем все специальные аргументы p4a
-            # _env, _iter, и другие
+            # Извлекаем _env
             env = kwargs.pop('_env', None)
             if env:
-                import os
                 new_env = os.environ.copy()
                 new_env.update(env)
                 kwargs['env'] = new_env
             
-            # Игнорируем остальные специальные аргументы p4a
+            # ИГНОРИРУЕМ ВСЕ СПЕЦИАЛЬНЫЕ ПАРАМЕТРЫ P4A
             kwargs.pop('_iter', None)
             kwargs.pop('_spawn', None)
             kwargs.pop('_bg', None)
             kwargs.pop('_tee', None)
             kwargs.pop('_fg', None)
+            kwargs.pop('_out_bufsize', None)      # <-- ДОБАВЛЕНО!
+            kwargs.pop('_err_to_out', None)       # <-- ДОБАВЛЕНО!
+            kwargs.pop('_env', None)
+            kwargs.pop('_timeout', None)
+            kwargs.pop('_cwd', None)
+            kwargs.pop('_hide', None)
+            kwargs.pop('_long', None)
+            kwargs.pop('_ok_code', None)
+            kwargs.pop('_with', None)
+            kwargs.pop('_piped', None)
             
             info(f'HostPython3: pip final cmd: {cmd}')
             info(f'HostPython3: pip final kwargs: {kwargs}')
@@ -87,15 +94,27 @@ class HostPython3Recipe(Recipe):
             cmd = [self.get_path_to_python()] + list(args)
             env = kwargs.pop('_env', None)
             if env:
-                import os
                 new_env = os.environ.copy()
                 new_env.update(env)
                 kwargs['env'] = new_env
+            
+            # ИГНОРИРУЕМ ВСЕ СПЕЦИАЛЬНЫЕ ПАРАМЕТРЫ P4A
             kwargs.pop('_iter', None)
             kwargs.pop('_spawn', None)
             kwargs.pop('_bg', None)
             kwargs.pop('_tee', None)
             kwargs.pop('_fg', None)
+            kwargs.pop('_out_bufsize', None)      # <-- ДОБАВЛЕНО!
+            kwargs.pop('_err_to_out', None)       # <-- ДОБАВЛЕНО!
+            kwargs.pop('_env', None)
+            kwargs.pop('_timeout', None)
+            kwargs.pop('_cwd', None)
+            kwargs.pop('_hide', None)
+            kwargs.pop('_long', None)
+            kwargs.pop('_ok_code', None)
+            kwargs.pop('_with', None)
+            kwargs.pop('_piped', None)
+            
             return subprocess.check_call(cmd, **kwargs)
         return python_command
 
