@@ -19,8 +19,11 @@ p4a.local_recipes = ./p4a-recipes
 
 orientation = portrait
 
-android.permissions = INTERNET, VIBRATE, RECORD_AUDIO, MODIFY_AUDIO_SETTINGS
-android.api = 30
+# ДОБАВЛЯЕМ BLUETOOTH РАЗРЕШЕНИЯ ДЛЯ API 31
+android.permissions = INTERNET, VIBRATE, RECORD_AUDIO, MODIFY_AUDIO_SETTINGS, BLUETOOTH, BLUETOOTH_CONNECT, BLUETOOTH_SCAN
+
+# ПОДНИМАЕМ API ДО 31 (решает проблему BLUETOOTH_CONNECT)
+android.api = 31
 android.minapi = 24
 android.ndk_api = 24
 android.sdk = 33
