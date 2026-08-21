@@ -47,9 +47,12 @@ RUN pip install --no-cache-dir \
 
 RUN python3 -c "import sys; print(f'Python {sys.version}')" && pip list --version
 
+# НОВОЕ: Создаем пользователя И принимаем лицензии SDK
 RUN useradd -m -u 1000 builder \
     && mkdir -p /home/builder/.buildozer \
+    && mkdir -p /home/builder/.android \
     && touch /home/builder/.buildozer/default.spec \
+    && echo "### User Sources for Android SDK Manager" > /home/builder/.android/repositories.cfg \
     && chown -R builder:builder /home/builder \
     && chmod -R 755 /home/builder \
     && echo "builder ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
