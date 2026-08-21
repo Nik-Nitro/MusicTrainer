@@ -1,0 +1,121 @@
+======================================================================
+🔍 ПРОВЕРКА РЕАЛЬНОГО КОДА ГАРМОНИЧЕСКОГО РЕЖИМА
+======================================================================
+📅 2026-08-11 19:40:02
+======================================================================
+
+📊 АНАЛИЗ ФАЙЛА exercise_engine.py:
+----------------------------------------
+
+📄 Анализ exercise_engine.py
+
+1. МЕТОД _play_harmonic():
+----------------------------------------
+   📋 Код метода:
+   def _play_harmonic(self, tonic_freq: float, interval_freq: float, callback=None):
+           """Воспроизведение в гармоническом режиме (одновременно)"""
+           duration = self._get_note_duration()
+           
+           print(f"   🎵 Гармонический режим: тоника + интервал")
+
+   📊 Результаты:
+      ✅ Использует одновременное воспроизведение
+      ❌ НЕ вызывает _start_harmonic_tonic()
+      ❌ НЕ запускает звук
+
+2. МЕТОД start_adjustment():
+----------------------------------------
+   📋 Код метода:
+   def start_adjustment(self):
+           """
+           Начало настройки.
+           
+           Для гармонического режима: тоника звучит как фон, интервал настраивается.
+           Для мелодического режима: непрерывный звук для настройки.
+           """
+           if not self.current_task:
+               return
+           
+           mode = self.current_task["mode"]
+           tonic_freq = self.current_task["tonic_freq"]
+           interval_freq = self.current_task["interval_freq"]
+           
+           # Останавливаем текущий звук
+           self.stop_sound()
+           
+           if mode == "harmonic":
+               # В гармоническом режиме включаем тонику как фон
+               self._start_harmonic_tonic()
+               print("   🎵 ГАРМОНИЧЕСКИЙ РЕЖИМ: тоника звучит (фон)")
+           else:
+               # В мелодическом режиме включаем непрерывный звук для настройки
+               self.sound_engine.set_frequency(interval_freq)
+               self.sound_engine.set_volume(self.volume)
+               self.sound_engine.timbre = Timbre(self.timbre_name)
+               self.sound_engine.start()
+               self.is_playing = True
+               print(f"   🎵 МЕЛОДИЧЕСКИЙ РЕЖИМ: непрерывный звук {interval_freq:.1f} Гц")
+
+   📊 Результаты:
+      ✅ Обрабатывает гармонический режим
+      ✅ Запускает звук для гармонического режима
+      ✅ Упоминает тонику
+
+3. МЕТОД _start_harmonic_tonic():
+----------------------------------------
+   📋 Код метода:
+   def _start_harmonic_tonic(self):
+           """Запуск постоянного звучания тоники (гармонический режим)"""
+           if not self.sound_engine or not self.current_task:
+               return
+           
+           tonic_freq = self.current_task["tonic_freq"]
+           
+           self.sound_engine.stop()
+           self.sound_engine.set_frequency(tonic_freq)
+           self.sound_engine.set_volume(self.volume * 0.7)  # Немного тише для фона
+           self.sound_engine.timbre = Timbre(self.timbre_name)
+           self.sound_engine.start()
+           self.is_harmonic_mode = True
+           self.is_playing = True
+           
+           print(f"   🎵 ТОНИКА (фон): {tonic_freq:.1f} Гц")
+
+   📊 Результаты:
+      ✅ Запускает звук
+      ✅ Устанавливает частоту
+      ✅ Устанавливает флаг гармонического режима
+
+4. МЕТОД play_interval_full():
+----------------------------------------
+   📋 Код метода:
+   def play_interval_full(self, callback=None):
+           """Полное воспроизведение интервала (тоника + интервал)"""
+           if not self.current_task:
+               return
+           
+           tonic_freq = self.current_task["tonic_freq"]
+           interval_freq = self.current_task["interval_freq"]
+           mode = self.current_task["mode"]
+           
+           if mode == "melodic":
+               self._play_melodic(tonic_freq, interval_freq, callback)
+           else:
+               self._play_harmonic(tonic_freq, interval_freq, callback)
+       
+       # 🏷️ СТАРТ_БЛОКА: PUBLIC_PLAYBACK
+
+   📊 Результаты:
+      ✅ Вызывает _play_harmonic() для гармонического режима
+      ✅ Проверяет режим
+
+======================================================================
+📊 ИТОГИ ПРОВЕРКИ
+======================================================================
+
+   Если все проверки зеленые — код работает правильно.
+   Если есть красные — нужно исправить соответствующие методы.
+
+======================================================================
+✅ ПРОВЕРКА ЗАВЕРШЕНА
+======================================================================

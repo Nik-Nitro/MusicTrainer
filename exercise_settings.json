@@ -1,0 +1,21 @@
+{
+  "tuning": "natural",
+  "tonic_range": [
+    "C4",
+    "C4"
+  ],
+  "a4_frequency": 440.0,
+  "selected_intervals": [
+    "малая_терция"
+  ],
+  "direction": "up",
+  "speed": 8,
+  "timbre": "Флейта",
+  "mode": "harmonic",
+  "tuning_range": 150,
+  "start_range": 150,
+  "tonic_volume": 77,
+  "interval_start_volume": 25,
+  "show_deviation": false,
+  "show_frequency": false
+}

@@ -1,0 +1,255 @@
+================================================================================
+📊 ПОЛНАЯ ДОКУМЕНТАЦИЯ ПРОЕКТА MUSICTRAINER
+================================================================================
+
+📅 Дата: 2026-08-11 19:17:08
+📁 Путь: /storage/emulated/0/MusicTrainer
+🐍 Python: 3.13.13
+
+================================================================================
+
+📂 1. СТРУКТУРА ПРОЕКТА
+--------------------------------------------------------------------------------
+
+   📁 // (7 файлов)
+      main.py, info v1.py, main_new.py, simple_menu.py, simple_main.py ... и еще 2
+   📁 backup_20260811_190033/exercises/engine/ (1 файлов)
+      exercise_engine.py
+   📁 backup_20260811_190033/exercises/ui/ (1 файлов)
+      exercise_screen.py
+   📁 backup_20260811_190859/exercises/config/ (1 файлов)
+      settings.py
+   📁 core/ (3 файлов)
+      engine.py, timbre.py, __init__.py
+   📁 exercises/ (1 файлов)
+      __init__.py
+   📁 exercises/base/ (5 файлов)
+      __init__.py, exercise.py, exercise_factory.py, exercise_manager.py, exercise_session.py
+   📁 exercises/config/ (4 файлов)
+      __init__.py, settings.py, settings_manager.py, progress_manager.py
+   📁 exercises/engine/ (2 файлов)
+      exercise_engine.py, __init__.py
+   📁 exercises/types/ (3 файлов)
+      __init__.py, harmonic.py, melodic.py
+   📁 exercises/ui/ (6 файлов)
+      __init__.py, exercise_screen.py, result_screen.py, progress_screen.py, settings_screen.py ... и еще 1
+   📁 screens/ (5 файлов)
+      __init__.py, menu_screen.py, info_screen.py, debug_screen.py, joystick_screen.py
+   📁 ui/ (4 файлов)
+      main_screen.py, widgets.py, controls.py, __init__.py
+
+📊 Всего Python файлов: 43
+
+📄 2. ОПИСАНИЕ ФАЙЛОВ
+--------------------------------------------------------------------------------
+
+   📄 main.py
+      📊 Размер: 2541 байт, Строк: 88
+      📦 Классы: MusicApp
+      🔧 Методы: __init__, build, switch_to, on_stop
+      📦 Импорты: sys, os, pygame, kivy.app, kivy.core.window ... и еще 7
+
+   📄 core/engine.py
+      📊 Размер: 10640 байт, Строк: 280
+      📦 Классы: SoundEngine
+      🔧 Методы: __init__, start, stop, toggle, full_stop, _generate_buffer, _apply_ramp, _update_sound, set_frequency, set_volume ... и еще 6
+      📦 Импорты: pygame, numpy, kivy.clock, .timbre
+
+   📄 core/timbre.py
+      📊 Размер: 2679 байт, Строк: 79
+      📦 Классы: Timbre
+      🔧 Методы: __init__, _build_timbre, generate, get_timbre_names
+      📦 Импорты: numpy
+
+   📄 exercises/engine/exercise_engine.py
+      📊 Размер: 14423 байт, Строк: 363
+      📦 Классы: ExerciseEngine
+      🔧 Методы: __init__, _setup_timbre, _play_note, _start_harmonic_tonic, _stop_harmonic_tonic, _stop_note, start_session, _play_melodic, play_interval_part, _play_harmonic ... и еще 8
+      📦 Импорты: random, numpy, typing, datetime, kivy.clock ... и еще 3
+
+   📄 exercises/ui/exercise_screen.py
+      📊 Размер: 23420 байт, Строк: 642
+      📦 Классы: ExerciseScreen
+      🔧 Методы: __init__, _build_ui, _update_frequency_display, start_exercise, _start_new_session, _continue_session, _load_next_task, _create_oscilloscope, _update_task_info, _play_interval ... и еще 10
+      📦 Импорты: numpy, kivy.uix.screenmanager, kivy.uix.boxlayout, kivy.uix.label, kivy.uix.button ... и еще 10
+
+   📄 exercises/config/settings.py
+      📊 Размер: 9846 байт, Строк: 274
+      📦 Классы: ExerciseSettings
+      🔧 Методы: __init__, from_dict, set_mode
+      📦 Импорты: typing
+
+   📄 ui/widgets.py
+      📊 Размер: 8592 байт, Строк: 244
+      📦 Классы: OscilloscopeWidget, InfoLayout
+      🔧 Методы: __init__, _get_speed, _update_frequency, update_visualization, on_touch_down, on_touch_move, on_touch_up, on_size, __init__, update_info
+      📦 Импорты: numpy, kivy.uix.widget, kivy.uix.boxlayout, kivy.uix.label, kivy.graphics ... и еще 2
+
+   📄 ui/controls.py
+      📊 Размер: 1798 байт, Строк: 55
+      📦 Классы: ControlsLayout
+      🔧 Методы: __init__, select_timbre
+      📦 Импорты: kivy.uix.boxlayout, kivy.uix.button, kivy.metrics
+
+   📄 screens/joystick_screen.py
+      📊 Размер: 3618 байт, Строк: 105
+      📦 Классы: JoystickScreen
+      🔧 Методы: __init__, _build_ui, toggle_sound, go_back, on_stop
+      📦 Импорты: kivy.uix.boxlayout, kivy.uix.label, kivy.uix.button, kivy.metrics, core.engine ... и еще 2
+
+🏗️ 3. ОСНОВНЫЕ КЛАССЫ И МЕТОДЫ
+--------------------------------------------------------------------------------
+
+   🎵 SoundEngine (core/engine.py)
+      Основной звуковой движок приложения
+
+      🔧 Основные методы:
+         - __init__(): Инициализация pygame микшера
+         - start(): Запуск генерации звука
+         - stop(): Остановка генерации звука
+         - toggle(): Переключение старт/стоп
+         - set_frequency(freq): Установка частоты
+         - set_volume(vol): Установка громкости
+         - next_timbre(): Следующий тембр
+         - get_timbre_name(): Получение текущего тембра
+         - get_sine_data(): Данные для осциллографа
+         - get_diagnostics(): Диагностическая информация
+
+   🎯 ExerciseEngine (exercises/engine/exercise_engine.py)
+      Движок управления упражнениями
+
+      🔧 Основные методы:
+         - __init__(settings): Инициализация с настройками
+         - start_session(): Начало сессии упражнений
+         - generate_task(): Генерация задания
+         - play_interval_full(): Воспроизведение интервала
+         - start_adjustment(): Начало настройки (звук!)
+         - update_interval_frequency(freq): Обновление частоты
+         - stop_adjustment(): Остановка настройки
+         - check_answer(user_freq): Проверка ответа
+         - get_progress(): Получение прогресса
+         - close(): Закрытие движка
+
+   🖥️ ExerciseScreen (exercises/ui/exercise_screen.py)
+      Экран выполнения упражнения
+
+      🔧 Основные методы:
+         - __init__(app): Инициализация экрана
+         - start_exercise(): Запуск упражнения
+         - start_adjustment(): Обработчик кнопки 'Начать подбор'
+         - repeat_interval(): Повтор интервала
+         - submit_answer(): Отправка ответа
+         - next_task(): Следующее задание
+         - exit_exercise(): Выход с сохранением прогресса
+
+   ⚙️ ExerciseSettings (exercises/config/settings.py)
+      Настройки упражнений
+
+      🔧 Основные методы:
+         - __init__(): Инициализация настроек по умолчанию
+         - get_mode(): Получение режима (melodic/harmonic)
+         - set_mode(mode): Установка режима
+         - get_selected_intervals(): Выбранные интервалы
+         - get_interval_cents(name): Получение центов
+         - get_tonic_frequencies(): Частоты тоники
+         - to_dict(): Сериализация
+         - from_dict(data): Десериализация
+
+🔄 4. СХЕМА ВЗАИМОДЕЙСТВИЯ
+--------------------------------------------------------------------------------
+
+   ┌─────────────────────────────────────────────────────────────────┐
+   │                         ПОЛЬЗОВАТЕЛЬ                           │
+   └─────────────────────────────────────────────────────────────────┘
+                                    │
+                                    ▼
+   ┌─────────────────────────────────────────────────────────────────┐
+   │                    main.py (Точка входа)                        │
+   │  • Создание экранов: Menu, Joystick, Exercise, Settings        │
+   │  • Переключение между экранами                                 │
+   └─────────────────────────────────────────────────────────────────┘
+                                    │
+                                    ▼
+   ┌─────────────────────────────────────────────────────────────────┐
+   │                    ExerciseScreen                               │
+   │  • start_exercise(): Запуск упражнения                         │
+   │  • start_adjustment(): Начало подбора → вызывает Engine        │
+   │  • submit_answer(): Проверка ответа                            │
+   └─────────────────────────────────────────────────────────────────┘
+                                    │
+                                    ▼
+   ┌─────────────────────────────────────────────────────────────────┐
+   │                    ExerciseEngine                               │
+   │  • start_session(): Начало сессии                              │
+   │  • generate_task(): Генерация задания                          │
+   │  • start_adjustment(): Запуск звука для настройки              │
+   │  • check_answer(): Проверка ответа                             │
+   └─────────────────────────────────────────────────────────────────┘
+                                    │
+                                    ▼
+   ┌─────────────────────────────────────────────────────────────────┐
+   │                    SoundEngine (core/engine.py)                │
+   │  • start(): Запуск звука                                       │
+   │  • stop(): Остановка звука                                     │
+   │  • set_frequency(): Изменение частоты                          │
+   │  • set_volume(): Изменение громкости                          │
+   └─────────────────────────────────────────────────────────────────┘
+                                    │
+                                    ▼
+   ┌─────────────────────────────────────────────────────────────────┐
+   │                    pygame.mixer                                │
+   │  • channel.play(): Воспроизведение звука                       │
+   │  • channel.stop(): Остановка звука                             │
+   └─────────────────────────────────────────────────────────────────┘
+
+⚡ 5. ТЕХНИЧЕСКИЕ ХАРАКТЕРИСТИКИ
+--------------------------------------------------------------------------------
+
+   🎵 Звук:
+      - Частота дискретизации: 44100 Гц
+      - Режим: МОНО (1 канал)
+      - Буфер: 0.5 сек
+      - Тембры: Синус, Орган, Скрипка, Флейта, Кларнет
+      - Плавное изменение частоты: Ramp (0.02 сек)
+      - Кроссфейд: 256 сэмплов
+
+   🎯 Упражнения:
+      - Режимы: Мелодический, Гармонический
+      - Интервалы: 22 интервала от примы до квинтдецимы
+      - Тонический диапазон: C3 - C5
+      - Настройка частоты: 100-2000 Гц
+
+   🖥️ Интерфейс:
+      - Адаптивный дизайн
+      - Осциллограф с невидимым джойстиком
+      - Управление тембрами
+      - Диагностика компонентов
+
+📊 6. СТАТИСТИКА
+--------------------------------------------------------------------------------
+
+   📄 Всего файлов: 43
+   📦 Общий размер: 246.9 KB
+   📝 Всего строк кода: 6892
+
+💡 7. РЕКОМЕНДАЦИИ ДЛЯ РАЗРАБОТКИ
+--------------------------------------------------------------------------------
+
+   1. При изменении звука проверяйте размерность массивов:
+      - Для МОНО: 1D массив (N,)
+      - Для СТЕРЕО: 2D массив (N, 2)
+
+   2. При добавлении новых тембров обновите timbre.py
+
+   3. При изменении настроек упражнений:
+      - Добавьте новый параметр в ExerciseSettings
+      - Обновите to_dict() и from_dict()
+
+   4. При сборке APK:
+      - Используйте python3==3.10.12
+      - Добавьте pygame в requirements
+
+
+================================================================================
+✅ ДОКУМЕНТАЦИЯ СОЗДАНА 2026-08-11 19:17:08
+================================================================================

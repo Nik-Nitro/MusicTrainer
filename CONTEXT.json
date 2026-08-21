@@ -1,0 +1,180 @@
+{
+  "project": {
+    "name": "MusicTrainer",
+    "version": "v5.8",
+    "platform": "Android (Pydroid 3)",
+    "python_version": "3.13.13",
+    "last_update": "2026-08-13 00:47:18"
+  },
+  "statistics": {
+    "python_files": 46,
+    "total_size_kb": 291.5,
+    "largest_files": {
+      "info v1.py": "27.4 KB",
+      "exercise_screen.py": "22.9 KB",
+      "settings_screen.py": "19.9 KB",
+      "exercise_engine.py": "14.9 KB"
+    }
+  },
+  "current_task": {
+    "title": "Исправление гармонического режима",
+    "status": "completed",
+    "priority": "critical",
+    "last_update": "2026-08-13 00:47:18",
+    "description": "Гармонический режим полностью работает: тоника и интервал звучат одновременно, частота управляется через осциллограф, визуализация работает"
+  },
+  "completed_tasks": [
+    {
+      "task": "Создать CONTEXT.md",
+      "date": "2026-08-11"
+    },
+    {
+      "task": "Тесты логики упражнений",
+      "date": "2026-08-11"
+    },
+    {
+      "task": "Возврат к pygame",
+      "date": "2026-08-11"
+    },
+    {
+      "task": "Разделение SoundEngine на три движка (sound, tonic, interval)",
+      "date": "2026-08-13"
+    },
+    {
+      "task": "Исправление передачи engine в осциллограф",
+      "date": "2026-08-13"
+    },
+    {
+      "task": "Добавление методов on_touch и update_visualization в ExerciseOscilloscope",
+      "date": "2026-08-13"
+    },
+    {
+      "task": "Исправление управления частотой в гармоническом режиме",
+      "date": "2026-08-13"
+    },
+    {
+      "task": "Исправление визуализации осциллографа в гармоническом режиме",
+      "date": "2026-08-13"
+    }
+  ],
+  "pending_tasks": [
+    {
+      "task": "Настроить buildozer.spec",
+      "priority": "critical"
+    },
+    {
+      "task": "Добавить диагностику в SettingsScreen",
+      "priority": "high"
+    },
+    {
+      "task": "Проверить сохранение настроек",
+      "priority": "high"
+    },
+    {
+      "task": "Добавить больше интервалов",
+      "priority": "medium"
+    },
+    {
+      "task": "Улучшить визуализацию осциллографа",
+      "priority": "medium"
+    }
+  ],
+  "key_files": {
+    "core/engine.py": "Звуковой движок на pygame",
+    "exercises/engine/exercise_engine.py": "Логика упражнений",
+    "exercises/ui/exercise_screen.py": "Экран выполнения упражнений",
+    "exercises/ui/exercise_oscilloscope.py": "Осциллограф для упражнений",
+    "exercises/ui/settings_screen.py": "Экран настроек",
+    "exercises/config/settings.py": "Класс настроек",
+    "ui/widgets.py": "Базовые виджеты"
+  },
+  "architecture": {
+    "sound_system": {
+      "engines": {
+        "sound_engine": "Основной движок для мелодического режима",
+        "tonic_engine": "Движок для тоники в гармоническом режиме",
+        "interval_engine": "Движок для интервала в гармоническом режиме"
+      },
+      "channels": "Используются разные каналы pygame",
+      "sample_rate": "44100 Гц",
+      "mode": "Моно"
+    },
+    "exercise_system": {
+      "modes": [
+        "melodic",
+        "harmonic"
+      ],
+      "intervals": 22,
+      "tonic_range": "C3 - C5"
+    },
+    "ui": {
+      "framework": "Kivy",
+      "main_screens": [
+        "menu",
+        "joystick",
+        "exercise",
+        "settings",
+        "info",
+        "debug"
+      ]
+    }
+  },
+  "decisions": [
+    {
+      "decision": "Использовать pygame",
+      "reason": "KivySoundLoader не работает на Android"
+    },
+    {
+      "decision": "МОНО-режим звука",
+      "reason": "1 канал, одномерные массивы"
+    },
+    {
+      "decision": "Ленивая инициализация SoundEngine",
+      "reason": "Избежать ошибок до создания окна"
+    },
+    {
+      "decision": "Разделение на 3 звуковых движка",
+      "reason": "Для правильной работы гармонического режима"
+    },
+    {
+      "decision": "Передача ExerciseEngine в осциллограф",
+      "reason": "Для управления частотой через упражнения"
+    },
+    {
+      "decision": "MockSoundEngine для тестов",
+      "reason": "Изоляция логики от звука"
+    }
+  ],
+  "issues_solved": [
+    {
+      "issue": "Один канал для всех движков",
+      "solution": "Поиск свободного канала в SoundEngine.start()"
+    },
+    {
+      "issue": "В гармоническом режиме не работал осциллограф",
+      "solution": "Передача interval_engine для визуализации"
+    },
+    {
+      "issue": "В гармоническом режиме не менялась частота",
+      "solution": "Передача ExerciseEngine в осциллограф"
+    },
+    {
+      "issue": "Отсутствовали методы on_touch в ExerciseOscilloscope",
+      "solution": "Добавлены методы on_touch_down/on_touch_move/on_touch_up"
+    },
+    {
+      "issue": "Отсутствовал update_visualization в ExerciseOscilloscope",
+      "solution": "Добавлен метод update_visualization"
+    }
+  ],
+  "test_summary": {
+    "total": 16,
+    "passed": 16,
+    "failed": 0,
+    "last_run": "2026-08-13 00:47:18"
+  },
+  "last_update": {
+    "date": "2026-08-13 00:47:18",
+    "description": "Завершено исправление гармонического режима. Создана документация."
+  }
+}

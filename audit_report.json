@@ -1,0 +1,411 @@
+{
+  "timestamp": "2026-08-14T22:48:27.574132",
+  "project_name": "MusicTrainer",
+  "version": "v5.8",
+  "checks": {
+    "structure": [
+      {
+        "name": "core",
+        "exists": true,
+        "type": "directory",
+        "status": "OK"
+      },
+      {
+        "name": "exercises",
+        "exists": true,
+        "type": "directory",
+        "status": "OK"
+      },
+      {
+        "name": "exercises/engine",
+        "exists": true,
+        "type": "directory",
+        "status": "OK"
+      },
+      {
+        "name": "exercises/ui",
+        "exists": true,
+        "type": "directory",
+        "status": "OK"
+      },
+      {
+        "name": "exercises/config",
+        "exists": true,
+        "type": "directory",
+        "status": "OK"
+      },
+      {
+        "name": "screens",
+        "exists": true,
+        "type": "directory",
+        "status": "OK"
+      },
+      {
+        "name": "ui",
+        "exists": true,
+        "type": "directory",
+        "status": "OK"
+      },
+      {
+        "name": "data",
+        "exists": false,
+        "type": "directory",
+        "status": "ERROR"
+      },
+      {
+        "name": "data/sessions",
+        "exists": false,
+        "type": "directory",
+        "status": "ERROR"
+      },
+      {
+        "name": "tests",
+        "exists": false,
+        "type": "directory",
+        "status": "ERROR"
+      },
+      {
+        "name": "assets",
+        "exists": false,
+        "type": "directory",
+        "status": "ERROR"
+      },
+      {
+        "name": "assets/fonts",
+        "exists": false,
+        "type": "directory",
+        "status": "ERROR"
+      }
+    ],
+    "imports": [
+      {
+        "file": "core/engine.py",
+        "required": [
+          "pygame",
+          "numpy",
+          "core.mixer",
+          "core.timbre"
+        ],
+        "found": [
+          "pygame",
+          "numpy",
+          "kivy.clock",
+          "timbre",
+          "mixer"
+        ],
+        "missing": [
+          "core.timbre",
+          "core.mixer"
+        ],
+        "status": "WARNING"
+      },
+      {
+        "file": "core/mixer.py",
+        "required": [
+          "numpy"
+        ],
+        "found": [
+          "math",
+          "typing",
+          "threading"
+        ],
+        "missing": [
+          "numpy"
+        ],
+        "status": "WARNING"
+      },
+      {
+        "file": "core/statistics.py",
+        "required": [
+          "json",
+          "datetime",
+          "pathlib"
+        ],
+        "found": [
+          "json",
+          "os",
+          "math",
+          "datetime",
+          "typing"
+        ],
+        "missing": [
+          "pathlib"
+        ],
+        "status": "WARNING"
+      },
+      {
+        "file": "exercises/engine/exercise_engine.py",
+        "required": [
+          "core.statistics",
+          "core.engine",
+          "exercises.config.settings"
+        ],
+        "found": [
+          "random",
+          "numpy",
+          "typing",
+          "datetime",
+          "kivy.clock",
+          "core.engine",
+          "exercises.config.settings",
+          "core.timbre",
+          "core.statistics",
+          "random",
+          "random"
+        ],
+        "missing": [],
+        "status": "OK"
+      },
+      {
+        "file": "main.py",
+        "required": [
+          "kivy",
+          "screens",
+          "exercises",
+          "core"
+        ],
+        "found": [
+          "sys",
+          "os",
+          "pygame",
+          "kivy.app",
+          "kivy.core.window",
+          "kivy.uix.boxlayout",
+          "simple_menu",
+          "simple_info",
+          "screens.joystick_screen",
+          "screens.debug_screen",
+          "screens.stats_screen",
+          "exercises.ui.settings_screen",
+          "exercises.ui.exercise_screen"
+        ],
+        "missing": [
+          "screens",
+          "kivy",
+          "core",
+          "exercises"
+        ],
+        "status": "WARNING"
+      }
+    ],
+    "files": [
+      {
+        "name": "main.py",
+        "exists": true,
+        "type": "file",
+        "status": "OK",
+        "size": 2699
+      },
+      {
+        "name": "core/__init__.py",
+        "exists": true,
+        "type": "file",
+        "status": "OK",
+        "size": 315
+      },
+      {
+        "name": "core/engine.py",
+        "exists": true,
+        "type": "file",
+        "status": "OK",
+        "size": 12072
+      },
+      {
+        "name": "core/mixer.py",
+        "exists": true,
+        "type": "file",
+        "status": "OK",
+        "size": 10421
+      },
+      {
+        "name": "core/timbre.py",
+        "exists": true,
+        "type": "file",
+        "status": "OK",
+        "size": 2679
+      },
+      {
+        "name": "core/statistics.py",
+        "exists": true,
+        "type": "file",
+        "status": "OK",
+        "size": 18942
+      },
+      {
+        "name": "core/utils.py",
+        "exists": false,
+        "type": "file",
+        "status": "ERROR"
+      },
+      {
+        "name": "exercises/__init__.py",
+        "exists": true,
+        "type": "file",
+        "status": "OK",
+        "size": 335
+      },
+      {
+        "name": "exercises/engine/__init__.py",
+        "exists": true,
+        "type": "file",
+        "status": "OK",
+        "size": 126
+      },
+      {
+        "name": "exercises/engine/exercise_engine.py",
+        "exists": true,
+        "type": "file",
+        "status": "OK",
+        "size": 26717
+      },
+      {
+        "name": "exercises/ui/__init__.py",
+        "exists": true,
+        "type": "file",
+        "status": "OK",
+        "size": 190
+      },
+      {
+        "name": "exercises/ui/exercise_screen.py",
+        "exists": true,
+        "type": "file",
+        "status": "OK",
+        "size": 29529
+      },
+      {
+        "name": "exercises/ui/exercise_oscilloscope.py",
+        "exists": true,
+        "type": "file",
+        "status": "OK",
+        "size": 15414
+      },
+      {
+        "name": "exercises/ui/settings_screen.py",
+        "exists": true,
+        "type": "file",
+        "status": "OK",
+        "size": 27979
+      },
+      {
+        "name": "exercises/ui/stats_widget.py",
+        "exists": false,
+        "type": "file",
+        "status": "ERROR"
+      },
+      {
+        "name": "exercises/config/__init__.py",
+        "exists": true,
+        "type": "file",
+        "status": "OK",
+        "size": 259
+      },
+      {
+        "name": "exercises/config/settings.py",
+        "exists": true,
+        "type": "file",
+        "status": "OK",
+        "size": 12967
+      },
+      {
+        "name": "screens/__init__.py",
+        "exists": true,
+        "type": "file",
+        "status": "OK",
+        "size": 366
+      },
+      {
+        "name": "screens/menu_screen.py",
+        "exists": true,
+        "type": "file",
+        "status": "OK",
+        "size": 3797
+      },
+      {
+        "name": "screens/joystick_screen.py",
+        "exists": true,
+        "type": "file",
+        "status": "OK",
+        "size": 3618
+      },
+      {
+        "name": "screens/stats_screen.py",
+        "exists": true,
+        "type": "file",
+        "status": "OK",
+        "size": 11278
+      },
+      {
+        "name": "screens/debug_screen.py",
+        "exists": true,
+        "type": "file",
+        "status": "OK",
+        "size": 8180
+      },
+      {
+        "name": "ui/__init__.py",
+        "exists": true,
+        "type": "file",
+        "status": "OK",
+        "size": 449
+      },
+      {
+        "name": "ui/widgets.py",
+        "exists": true,
+        "type": "file",
+        "status": "OK",
+        "size": 9771
+      },
+      {
+        "name": "buildozer.spec",
+        "exists": false,
+        "type": "file",
+        "status": "ERROR"
+      },
+      {
+        "name": "CONTEXT.md",
+        "exists": true,
+        "type": "file",
+        "status": "OK",
+        "size": 10706
+      },
+      {
+        "name": "README.md",
+        "exists": true,
+        "type": "file",
+        "status": "OK",
+        "size": 438
+      }
+    ],
+    "tests": [],
+    "buildozer": [],
+    "data": [],
+    "issues": [
+      "Missing directory: data",
+      "Missing directory: data/sessions",
+      "Missing directory: tests",
+      "Missing directory: assets",
+      "Missing directory: assets/fonts",
+      "Missing file: core/utils.py",
+      "Missing file: exercises/ui/stats_widget.py",
+      "Missing file: buildozer.spec",
+      "buildozer.spec missing"
+    ],
+    "warnings": [
+      "New file missing: exercises/ui/stats_widget.py",
+      "New file missing: data/statistics.json",
+      "New file missing: tests/test_statistics.py",
+      "Missing imports in core/engine.py: {'core.timbre', 'core.mixer'}",
+      "Missing imports in core/mixer.py: {'numpy'}",
+      "Missing imports in core/statistics.py: {'pathlib'}",
+      "Missing imports in main.py: {'screens', 'kivy', 'core', 'exercises'}",
+      "No test files found"
+    ]
+  },
+  "summary": {
+    "total_files": 24,
+    "python_files": 22,
+    "errors": 9,
+    "warnings": 8,
+    "status": "PASSED"
+  }
+}

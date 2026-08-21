@@ -1,0 +1,312 @@
+======================================================================
+🔍 ПРОВЕРКА ИСПОЛЬЗОВАНИЯ mode_display
+======================================================================
+📅 2026-08-12 00:20:52
+======================================================================
+
+📊 АНАЛИЗ ИСПОЛЬЗОВАНИЯ mode_display:
+----------------------------------------
+
+📄 1. МЕТОД _update_task_info()
+   📋 Полный метод:
+   def _update_task_info(self):
+           """Обновление информации о задании"""
+           if not self.current_task:
+               return
+           
+           task = self.current_task
+           
+           self.task_info_label.text = f"Задание {task['index']}/{task['total']}"
+           
+           mode_display = "Мелодический" if task["mode"] == "melodic" else "Гармонический"
+           direction_display = "↑" if task["direction"] == "up" else "↓"
+           self.mode_label.text = f"{mode_display} {direction_display}"
+           
+           if self.settings and self.settings.show_interval_name:
+               self.interval_info_label.text = f"🎯 Интервал: {task['display_name']}"
+           else:
+               self.interval_info_label.text = ""
+           
+           if task["mode"] == "harmonic":
+               self.status_label.text = "🎵 Гармонический режим: тоника будет звучать как фон"
+           else:
+               self.status_label.text = "🎵 Мелодический режим: тоника и интервал последовательно"
+   ✅ mode_display используется в методе
+      Строка 10: mode_display = "Мелодический" if task["mode"] == "melodic" else "Гармонический"
+      Строка 12: self.mode_label.text = f"{mode_display} {direction_display}"
+
+📄 2. ПРОВЕРКА self.mode_label.text
+   ✅ Найдены присвоения mode_label.text:
+      self.mode_label.text = f"{mode_display} {direction_display}"
+        
+        if self.settings and self.settings.show_interval_name:
+            self.interval_info_label.text = f"🎯 Интервал: {task['display_name']}"
+        else:
+            self.interval_info_label.text = ""
+        
+        if task["mode"] == "harmonic":
+            self.status_label.text = "🎵 Гармонический режим: тоника будет звучать как фон"
+        else:
+            self.status_label.text = "🎵 Мелодический режим: тоника и интервал последовательно"
+    
+
+    def _play_interval(self):
+        """Воспроизведение интервала"""
+        if not self.engine or not self.current_task:
+            return
+        
+        self.is_listening = True
+        self.status_label.text = "🎵 Воспроизведение..."
+        
+        self.engine.stop_sound()
+        
+        def on_play_complete():
+            self.is_listening = False
+            self.status_label.text = "🎵 Готово! Нажмите 'НАЧАТЬ ПОДБОР'"
+        
+        self.engine.play_interval_full(on_play_complete)
+    
+
+    def repeat_interval(self, instance):
+        """Повторное воспроизведение интервала"""
+        if not self.engine or not self.current_task or self.is_completed:
+            return
+        
+        if self.is_adjusting:
+            self.engine.stop_adjustment()
+            self.is_adjusting = False
+            self.start_btn.disabled = False
+            self.start_btn.text = "▶ НАЧАТЬ ПОДБОР"
+            self.start_btn.background_color = (0.2, 0.5, 0.2, 1)
+            self.submit_btn.disabled = True
+            self.submit_btn.opacity = 0.5
+        
+        self._play_interval()
+    
+
+    def start_adjustment(self, instance):
+        """Начало настройки частоты"""
+        if not self.engine or not self.current_task or self.is_completed:
+            return
+        
+        self.is_adjusting = True
+        self.start_btn.disabled = True
+        self.start_btn.text = "🔊 НАСТРОЙКА..."
+        self.start_btn.background_color = (0.5, 0.3, 0.1, 1)
+        
+        if hasattr(self, 'exercise_osc'):
+            target_freq = self.current_task["interval_freq"]
+            self.exercise_osc.set_target_frequency(target_freq)
+        
+        self.engine.start_adjustment()
+        
+        self.submit_btn.disabled = False
+        self.submit_btn.opacity = 1.0
+        
+        mode = self.current_task["mode"]
+        if mode == "harmonic":
+            self.status_label.text = "🔊 Настройка частоты (тоника звучит как фон)"
+        else:
+            self.status_label.text = "🔊 Настройка частоты"
+        
+        print("🎵 Начало настройки частоты")
+    
+
+    def submit_answer(self, instance):
+        """Отправка ответа"""
+        if not self.engine or not self.current_task or not self.is_adjusting:
+            return
+        
+        current_freq = self.engine.sound_engine.current_frequency
+        
+        result = self.engine.check_answer(current_freq)
+        if not result:
+            return
+        
+        self.engine.stop_adjustment()
+        self.is_adjusting = False
+        self.is_completed = True
+        self.result_shown = True
+        
+        self.submit_btn.disabled = True
+        self.submit_btn.opacity = 0.5
+        self.start_btn.disabled = True
+        self.repeat_btn.disabled = True
+        
+        self.progress_manager.update_from_engine(self.engine)
+        
+        self._show_result(result)
+        
+        print(f"   Ответ: {current_freq:.1f} Гц, отклонение: {result['deviation']:.1f} центов")
+    
+
+    def _show_result(self, result):
+        """Отображение результата с цветовой индикацией"""
+        deviation = result["deviation"]
+        is_correct = abs(deviation) <= 5
+        
+        if is_correct:
+            status = "✅ ОТЛИЧНО!"
+            color = (0.2, 0.7, 0.2, 1)
+            detail = "Отклонение в пределах ±5 центов"
+        elif abs(deviation) <= 10:
+            status = "👍 ХОРОШО!"
+            color = (0.7, 0.7, 0.2, 1)
+            detail = "Отклонение в пределах ±10 центов"
+        elif abs(deviation) <= 20:
+            status = "📖 УЧИТЕСЬ!"
+            color = (0.7, 0.5, 0.2, 1)
+            detail = "Отклонение в пределах ±20 центов"
+        else:
+            status = "💪 ТРЕНИРУЙТЕСЬ!"
+            color = (0.7, 0.2, 0.2, 1)
+            detail = "Отклонение более ±20 центов"
+        
+        self.result_container.canvas.before.clear()
+        with self.result_container.canvas.before:
+            Color(*color, 0.3)
+            Rectangle(pos=self.result_container.pos, size=self.result_container.size)
+        
+        sign = "+" if deviation > 0 else ""
+        self.result_label.text = f"{status}"
+        self.result_label.color = (1, 1, 1, 1)
+        
+        self.result_detail_label.text = f"Отклонение: {sign}{deviation:.1f} центов  |  Целевая частота: {result['target_freq']:.1f} Гц"
+        self.result_detail_label.color = (0.9, 0.9, 0.9, 1)
+        
+        self.result_panel.opacity = 1
+        self.result_panel.disabled = False
+        
+        self.status_label.text = f"✅ Задание завершено (отклонение {sign}{deviation:.1f} центов)"
+        
+        if abs(deviation) <= 5:
+            self.deviation_label.color = (0.3, 0.9, 0.3, 1)
+        elif abs(deviation) <= 10:
+            self.deviation_label.color = (0.9, 0.9, 0.3, 1)
+        elif abs(deviation) <= 20:
+            self.deviation_label.color = (0.9, 0.6, 0.3, 1)
+        else:
+            self.deviation_label.color = (0.9, 0.3, 0.3, 1)
+    
+
+    def play_etalon(self, instance):
+        """Проигрывание эталонного интервала"""
+        if not self.engine or not self.current_task:
+            return
+        
+        self.engine.stop_sound()
+        
+        def on_play_complete():
+            self.status_label.text = "🎵 Эталон воспроизведен"
+        
+        self.engine.play_etalon(on_play_complete)
+    
+
+    def next_task(self, instance):
+        """Переход к следующему заданию"""
+        if not self.engine:
+            return
+        
+        self.progress_manager.update_from_engine(self.engine)
+        
+        if self.engine.task_index >= self.engine.total_tasks:
+            self._finish_session()
+            return
+        
+        self._load_next_task()
+    
+
+    def _finish_session(self):
+        """Завершение сессии"""
+        if not self.engine:
+            return
+        
+        self.session_completed = True
+        
+        avg_deviation = self.engine.get_average_deviation()
+        progress = self.engine.get_progress()
+        
+        self.status_label.text = f"🎉 Сессия завершена! Точность: {progress['accuracy']:.1f}%"
+        
+        self.result_container.canvas.before.clear()
+        with self.result_container.canvas.before:
+            Color(0.2, 0.5, 0.2, 0.3)
+            Rectangle(pos=self.result_container.pos, size=self.result_container.size)
+        
+        self.result_label.text = "🎉 СЕССИЯ ЗАВЕРШЕНА!"
+        self.result_label.color = (0.3, 0.9, 0.3, 1)
+        self.result_detail_label.text = f"📊 Среднее отклонение: {avg_deviation:.1f} центов"
+        self.result_detail_label.color = (0.9, 0.9, 0.9, 1)
+        
+        self.result_panel.opacity = 1
+        self.result_panel.disabled = False
+        
+        self.repeat_btn.disabled = True
+        self.start_btn.disabled = True
+        self.submit_btn.disabled = True
+        self.next_btn.disabled = True
+        self.play_again_btn.disabled = True
+        
+        self.exit_btn.text = "🏠 В МЕНЮ"
+        self.exit_btn.background_color = (0.2, 0.5, 0.2, 1)
+        
+        self.progress_manager.update_from_engine(self.engine)
+        self.progress_manager.save()
+        
+        print(f"🎉 Сессия завершена! Точность: {progress['accuracy']:.1f}%")
+    
+
+    def exit_exercise(self, instance):
+        """Выход из упражнения с сохранением прогресса"""
+        print("🚪 Выход из упражнения")
+        
+        if self.engine:
+            self.progress_manager.update_from_engine(self.engine)
+            self.progress_manager.save()
+            print(f"   💾 Прогресс сохранен (задание {self.engine.task_index}/{self.engine.total_tasks})")
+            self.engine.close()
+            self.engine = None
+        
+        if self.app:
+            self.app.switch_to("exercise_settings")
+    
+    def load_settings(self, settings):
+        """
+        Загрузка настроек в ExerciseScreen.
+        
+        Args:
+            settings: Объект ExerciseSettings с настройками
+        """
+        print("🔍 load_settings() вызван в ExerciseScreen")
+        print(f"   📊 Получен режим: {settings.mode}")
+        print(f"   📊 Интервалы: {settings.selected_intervals}")
+        
+        self.settings = settings
+        print("   ✅ Настройки загружены")
+        
+        # Обновляем UI если нужно
+        if hasattr(self, '_update_settings_display'):
+            self._update_settings_display()
+
+
+📄 3. ПРОВЕРКА ОПРЕДЕЛЕНИЯ mode_display (строка 409)
+   Строка 409: mode_display = "Мелодический" if task["mode"] == "melodic" else "Гармонический"
+   ✅ Есть обработка гармонического режима
+
+📄 4. ПРОВЕРКА ПЕРЕДАЧИ mode_display В LABEL
+   ⚠️ mode_display НЕ передается в mode_label
+   💡 Возможно, нужно добавить: self.mode_label.text = mode_display
+
+======================================================================
+💡 РЕКОМЕНДАЦИИ
+======================================================================
+
+   Проблема: mode_display вычисляется правильно, но не отображается
+   Причина: self.mode_label.text не обновляется значением mode_display
+
+   Решение: В методе _update_task_info() добавьте:
+   self.mode_label.text = mode_display
+
+======================================================================
+✅ ДИАГНОСТИКА ЗАВЕРШЕНА
+======================================================================

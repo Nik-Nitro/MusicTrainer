@@ -1,0 +1,178 @@
+{
+  "project": {
+    "name": "MusicTrainer",
+    "version": "5.8",
+    "platform": "Android (Pydroid 3)",
+    "python_version": "3.13.13",
+    "date": "2026-08-13 00:44:20",
+    "description": "Приложение для тренировки музыкального слуха"
+  },
+  "architecture": {
+    "description": "Многослойная архитектура с разделением на UI, бизнес-логику и звуковой движок",
+    "layers": {
+      "UI": "Kivy (экраны, виджеты, осциллограф)",
+      "Business Logic": "ExerciseEngine (упражнения, режимы)",
+      "Sound Engine": "SoundEngine (генерация звука, тембры)",
+      "Data": "SettingsManager, ProgressManager"
+    }
+  },
+  "components": {
+    "SoundEngine": {
+      "file": "core/engine.py",
+      "description": "Звуковой движок с управлением старт/стоп",
+      "key_methods": [
+        "start() - запуск генерации звука",
+        "stop() - остановка генерации звука",
+        "set_frequency(freq) - установка частоты",
+        "set_volume(vol) - установка громкости",
+        "get_sine_data() - получение данных для осциллографа"
+      ],
+      "features": [
+        "Плавное изменение частоты (ramp)",
+        "Кроссфейд при смене частоты",
+        "Поддержка 5 тембров",
+        "Моно-режим",
+        "Поиск свободного звукового канала"
+      ]
+    },
+    "ExerciseEngine": {
+      "file": "exercises/engine/exercise_engine.py",
+      "description": "Движок управления упражнениями",
+      "key_methods": [
+        "start_session() - начало сессии",
+        "generate_task() - генерация задания",
+        "start_adjustment() - начало настройки",
+        "update_interval_frequency(freq) - обновление частоты",
+        "check_answer(freq) - проверка ответа",
+        "get_current_frequency() - получение текущей частоты",
+        "get_sine_data() - получение данных для осциллографа"
+      ],
+      "modes": {
+        "melodic": "Мелодический режим (последовательное воспроизведение)",
+        "harmonic": "Гармонический режим (одновременное воспроизведение)"
+      }
+    },
+    "ExerciseOscilloscope": {
+      "file": "exercises/ui/exercise_oscilloscope.py",
+      "description": "Осциллограф для упражнений с суженным диапазоном частот",
+      "key_methods": [
+        "update_visualization(dt) - обновление визуализации",
+        "set_exercise_mode(enabled) - установка режима упражнения",
+        "update_frequency_from_engine() - обновление частоты из движка",
+        "_update_frequency(dt) - обновление частоты"
+      ],
+      "features": [
+        "Суженный диапазон частот",
+        "Автоматический выбор движка для визуализации",
+        "Поддержка упражнений и джойстика"
+      ]
+    },
+    "ExerciseScreen": {
+      "file": "exercises/ui/exercise_screen.py",
+      "description": "Экран выполнения упражнения",
+      "key_methods": [
+        "start_exercise() - запуск упражнения",
+        "_create_oscilloscope() - создание осциллографа",
+        "start_adjustment(instance) - начало настройки",
+        "submit_answer(instance) - отправка ответа"
+      ]
+    }
+  },
+  "sound_system": {
+    "description": "Гибридная система с тремя движками",
+    "engines": {
+      "sound_engine": "Основной движок для мелодического режима и джойстика",
+      "tonic_engine": "Движок для тоники в гармоническом режиме",
+      "interval_engine": "Движок для интервала в гармоническом режиме"
+    },
+    "modes": {
+      "melodic": {
+        "description": "Звук через sound_engine, управление через ExerciseEngine",
+        "visualization": "sound_engine"
+      },
+      "harmonic": {
+        "description": "Тоника через tonic_engine, интервал через interval_engine",
+        "visualization": "interval_engine",
+        "control": "interval_engine через ExerciseEngine"
+      }
+    },
+    "channels": "Используются разные каналы pygame для одновременного звучания"
+  },
+  "data_flow": {
+    "touch_flow": [
+      "1. Пользователь касается осциллографа",
+      "2. on_touch_move() вычисляет новую частоту",
+      "3. _update_frequency() вызывает update_interval_frequency()",
+      "4. ExerciseEngine.update_interval_frequency() обновляет interval_engine",
+      "5. SoundEngine.set_frequency() меняет частоту звука"
+    ],
+    "visualization_flow": [
+      "1. update_visualization() вызывается по таймеру",
+      "2. Получает данные из exercise_engine.get_sine_data()",
+      "3. Отображает данные на canvas"
+    ]
+  },
+  "key_issues_and_solutions": {
+    "one_channel_for_all": {
+      "issue": "Все движки использовали один канал pygame",
+      "solution": "Поиск свободного канала в SoundEngine.start()"
+    },
+    "harmonic_visualization": {
+      "issue": "В гармоническом режиме осциллограф не показывал сигнал",
+      "solution": "Осциллограф получает interval_engine для визуализации"
+    },
+    "frequency_control": {
+      "issue": "В гармоническом режиме не менялась частота",
+      "solution": "Передача ExerciseEngine в осциллограф для управления"
+    }
+  },
+  "file_structure": {
+    "core": {
+      "engine.py": "Звуковой движок",
+      "timbre.py": "Тембры"
+    },
+    "ui": {
+      "widgets.py": "Основные виджеты",
+      "controls.py": "Элементы управления"
+    },
+    "exercises": {
+      "engine": {
+        "exercise_engine.py": "Движок упражнений"
+      },
+      "ui": {
+        "exercise_screen.py": "Экран упражнений",
+        "exercise_oscilloscope.py": "Осциллограф для упражнений",
+        "settings_screen.py": "Экран настроек"
+      },
+      "config": {
+        "settings.py": "Настройки",
+        "settings_manager.py": "Менеджер настроек",
+        "progress_manager.py": "Менеджер прогресса"
+      },
+      "types": {
+        "melodic.py": "Мелодический режим",
+        "harmonic.py": "Гармонический режим"
+      }
+    },
+    "screens": {
+      "menu_screen.py": "Главное меню",
+      "joystick_screen.py": "Джойстик",
+      "info_screen.py": "Информация",
+      "debug_screen.py": "Отладка"
+    }
+  },
+  "dependencies": {
+    "kivy": "2.3.1",
+    "pygame": "2.6.1",
+    "numpy": "Для обработки звука"
+  },
+  "setup_instructions": {
+    "platform": "Android (Pydroid 3)",
+    "steps": [
+      "Установить Pydroid 3",
+      "Установить numpy, pygame",
+      "Скопировать файлы проекта",
+      "Запустить main.py"
+    ]
+  }
+}

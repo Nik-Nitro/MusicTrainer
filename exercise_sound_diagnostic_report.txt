@@ -1,0 +1,80 @@
+======================================================================
+🔍 ДИАГНОСТИКА ЗВУКА В УПРАЖНЕНИЯХ
+======================================================================
+📅 2026-08-11 18:36:06
+======================================================================
+
+📊 АНАЛИЗ КОДА:
+----------------------------------------
+
+📄 1. АНАЛИЗ exercise_engine.py
+
+   🔍 Метод start_adjustment():
+      def start_adjustment(self):
+        """Начало настройки (запуск тоники в гармоническом режиме)"""
+        if not self.current_task:
+            return
+        
+        mode = self.current_task["mode"]
+        
+        # Останавливаем текущий звук
+        self.stop_sound()
+        
+        if mode ==...
+      ✅ В методе есть запуск звука
+
+   🔍 Метод stop_adjustment():
+      def stop_adjustment(self):
+        """Остановка настройки (выключение тоники)"""
+        self._stop_harmonic_tonic()
+        self.stop_sound()...
+      ✅ В методе есть остановка звука
+
+   🔍 Метод _play_harmonic():
+      def _play_harmonic(self, tonic_freq: float, interval_freq: float, callback=None):
+        """Воспроизведение в гармоническом режиме (одновременно)"""
+        duration = self._get_note_duration()
+        
+        print(f"   🎵 Гармонический режим: тоника + интервал")...
+      ❌ НЕ использует sound_engine.start()!
+
+   🔍 Метод start_session():
+      def start_session(self):
+        """Начало сессии упражнений"""
+        self.is_active = True
+        self.task_index = 0
+        self.correct_count = 0
+        self.wrong_count = 0
+        self.total_deviation = 0.0
+        self.deviation_count = 0
+        self.total_tasks = self.settings.tasks_per...
+      ✅ Инициализирует sound_engine
+
+📄 2. АНАЛИЗ exercise_screen.py
+
+📄 3. АНАЛИЗ exercise_controller.py
+
+======================================================================
+💡 РЕКОМЕНДАЦИИ
+======================================================================
+
+   Проблема: При настройке (подборе) звук пропадает
+   Причина: В методе start_adjustment() не включается непрерывная генерация звука
+
+   Решение: В методе start_adjustment() нужно:
+   1. Запустить непрерывную генерацию звука для осциллографа
+   2. Использовать sound_engine.start_continuous() или sound_engine.start()
+   3. Для гармонического режима запускать тонику как фон
+
+   Пример исправления:
+   def start_adjustment(self):
+       if not self.current_task:
+           return
+       mode = self.current_task['mode']
+       tonic_freq = self.current_task['tonic_freq']
+       interval_freq = self.current_task['interval_freq']
+       self.stop_sound()
+       if mode == 'harmonic':
+           self.sound_engine.start_tonic(tonic_freq)
+       else:
+           self.sound_engine.start_continuous(interval_freq)

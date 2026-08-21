@@ -1,0 +1,27 @@
+======================================================================
+🔍 ПРОВЕРКА GENERATE_TASK
+======================================================================
+📅 2026-08-12 00:23:12
+======================================================================
+
+📊 АНАЛИЗ GENERATE_TASK:
+----------------------------------------
+
+📌 1. СОЗДАНИЕ НАСТРОЕК
+   Режим в настройках: harmonic
+
+📌 2. СОЗДАНИЕ ДВИЖКА
+   ✅ ExerciseEngine создан
+   📊 Режим в движке: harmonic
+
+📌 3. ЗАПУСК СЕССИИ
+   ⚠️ Ошибка start_session(): Application didn't initialize properly, did you include SDL_main.h in the file containing your main() function?
+
+📌 4. ГЕНЕРАЦИЯ ЗАДАНИЯ
+   ✅ Задание создано
+   📊 Режим в задании: harmonic
+   📊 Интервал: Квинта
+   📊 Полное задание: {'index': 1, 'total': 1, 'interval_name': 'квинта', 'cents': 700, 'direction': 'up', 'mode': 'harmonic', 'tonic_freq': 261.63, 'interval_freq': 392.0020805232462, 'display_name': 'Квинта', 'user_freq': None, 'deviation': None, 'is_correct': None, 'completed': False}
+   ✅ РЕЖИМ ПРАВИЛЬНЫЙ: harmonic
+
+🔇 Движок закрыт

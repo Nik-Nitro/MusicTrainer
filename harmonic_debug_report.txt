@@ -1,0 +1,103 @@
+======================================================================
+🔍 ДИАГНОСТИКА ГАРМОНИЧЕСКОГО РЕЖИМА
+======================================================================
+📅 2026-08-12 02:06:13
+======================================================================
+
+📊 АНАЛИЗ ГАРМОНИЧЕСКОГО РЕЖИМА:
+----------------------------------------
+
+📌 1. МЕТОД _play_harmonic()
+----------------------------------------
+   📋 Полный код метода:
+   def _play_harmonic(self, tonic_freq: float, interval_freq: float, callback=None):
+           """
+           Воспроизведение в гармоническом режиме (одновременно).
+           Тоника звучит как фон, интервал поверх.
+           """
+           duration = self._get_note_duration()
+           
+           print(f"   🎵 Гармонический режим: тоника + интервал (ОДНОВРЕМЕННО)")
+           
+           # Сохраняем тонику в задании для _start_harmonic_tonic
+           if self.current_task:
+               self.current_task["tonic_freq"] = tonic_freq
+           
+           # Запускаем тонику как фон
+           self._start_harmonic_tonic()
+           
+           # Запускаем интервал поверх тоники
+
+   📊 Последовательность вызовов:
+      1. _start_harmonic_tonic
+      2. _start_harmonic_tonic
+
+   📊 Результаты проверки:
+      ✅ Вызывает _start_harmonic_tonic()
+      ❌ НЕ вызывает _play_note()
+      ✅ Обрабатывает callback
+
+📌 2. МЕТОД _start_harmonic_tonic()
+----------------------------------------
+   📋 Полный код метода:
+   def _start_harmonic_tonic(self):
+           """Запуск постоянного звучания тоники (гармонический режим)"""
+           if not self.sound_engine or not self.current_task:
+               return
+           
+           tonic_freq = self.current_task["tonic_freq"]
+           
+           self.sound_engine.stop()
+           self.sound_engine.set_frequency(tonic_freq)
+           self.sound_engine.set_volume(self.volume * 0.7)  # Немного тише для фона
+           self.sound_engine.timbre = Timbre(self.timbre_name)
+           self.sound_engine.start()
+           self.is_harmonic_mode = True
+           self.is_playing = True
+           
+           print(f"   🎵 ТОНИКА (фон): {tonic_freq:.1f} Гц")
+
+   📊 Результаты проверки:
+      ✅ Останавливает текущий звук
+      ✅ Устанавливает частоту тоники
+      ✅ Запускает sound_engine.start()
+
+📌 3. МЕТОД _play_note()
+----------------------------------------
+   📋 Полный код метода:
+   def _play_note(self, frequency: float, duration: float, callback=None):
+           """Воспроизведение одной ноты с заданной длительностью"""
+           if not self.sound_engine:
+               return
+           
+           self.sound_engine.stop()
+           self.sound_engine.set_frequency(frequency)
+           self.sound_engine.set_volume(self.volume)
+           self.sound_engine.timbre = Timbre(self.timbre_name)
+           self.sound_engine.start()
+           self.is_playing = True
+           
+           if callback:
+               Clock.schedule_once(lambda dt: self._stop_note(callback), duration)
+           else:
+               Clock.schedule_once(lambda dt: self._stop_note(), duration)
+           
+           print(f"   🎵 Нота: {frequency:.1f} Гц, {duration:.1f} сек")
+
+   📊 Результаты проверки:
+      ✅ Останавливает текущий звук
+      ✅ Устанавливает частоту
+      ✅ Запускает sound_engine.start()
+      ✅ Планирует остановку
+
+======================================================================
+💡 РЕКОМЕНДАЦИИ
+======================================================================
+
+   Если в _play_harmonic() последовательность вызовов правильная,
+   но интервал не звучит, проверьте передачу interval_freq в _play_note()
+   
+
+======================================================================
+✅ ДИАГНОСТИКА ЗАВЕРШЕНА
+======================================================================

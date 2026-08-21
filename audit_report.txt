@@ -1,0 +1,35 @@
+================================================================================
+MUSICTRAINER AUDIT REPORT
+Generated: 2026-08-14T22:48:27.574132
+================================================================================
+
+ISSUES FOUND:
+----------------------------------------
+❌ Missing directory: data
+❌ Missing directory: data/sessions
+❌ Missing directory: tests
+❌ Missing directory: assets
+❌ Missing directory: assets/fonts
+❌ Missing file: core/utils.py
+❌ Missing file: exercises/ui/stats_widget.py
+❌ Missing file: buildozer.spec
+❌ buildozer.spec missing
+
+WARNINGS:
+----------------------------------------
+⚠️ New file missing: exercises/ui/stats_widget.py
+⚠️ New file missing: data/statistics.json
+⚠️ New file missing: tests/test_statistics.py
+⚠️ Missing imports in core/engine.py: {'core.timbre', 'core.mixer'}
+⚠️ Missing imports in core/mixer.py: {'numpy'}
+⚠️ Missing imports in core/statistics.py: {'pathlib'}
+⚠️ Missing imports in main.py: {'screens', 'kivy', 'core', 'exercises'}
+⚠️ No test files found
+
+================================================================================
+RECOMMENDATIONS:
+================================================================================
+3. Create tests for statistics module
+
+================================================================================
+END OF REPORT

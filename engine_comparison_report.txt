@@ -1,0 +1,115 @@
+======================================================================
+🔍 СРАВНЕНИЕ ВЕРСИЙ core/engine.py
+======================================================================
+📅 2026-08-12 01:56:07
+======================================================================
+
+📊 АНАЛИЗ core/engine.py:
+----------------------------------------
+
+📌 1. КЛЮЧЕВЫЕ ПАРАМЕТРЫ
+----------------------------------------
+   ✅ phase_locked
+   ✅ oscilloscope_mode
+   ✅ crossfade_size
+   ✅ ramp_time
+   ✅ buffer_duration
+
+📌 2. МЕТОД _generate_buffer()
+----------------------------------------
+   📋 Код метода:
+   def _generate_buffer(self, freq, volume):
+           """
+           Генерация звукового буфера.
+           ВАЖНО: Для МОНО-режима используется 1D массив.
+           """
+           freq = max(100, min(10000, freq))
+           volume = max(0, min(1, volume))
+           size = self.buffer_size
+           
+           if self.oscilloscope_mode:
+               start_phase = 0.0
+           else:
+               start_phase = self.phase
+           
+           wave = self.timbre.generate(start_phase, freq, size, self.SAMPLE_RATE, volume)
+           
+           phase_inc = 2 * np.pi * freq / self.SAMPLE_RATE
+           if not self.oscilloscope_mode:
+               self.phase = (self.phase + phase_inc * size) % (2 * np.pi)
+           else:
+               self.phase = 0.0
+           
+           self.sine_data = wave[-1000:].copy()
+           return (wave * 32767).astype(np.int16)
+   ✅ Используется фаза
+   ✅ Используется oscilloscope_mode
+
+📌 3. МЕТОД _update_sound()
+----------------------------------------
+   📋 Код метода:
+   def _update_sound(self, dt):
+           """Обновление звука (вызывается каждый кадр)"""
+           # Если звук не играет - только обновляем данные для осциллографа
+           if not self.is_playing:
+               wave = np.zeros(self.buffer_size)
+               self.sine_data = wave[-1000:].copy()
+               return
+           
+           if not self.channel:
+               return
+           
+           if abs(self._freq_target - self.ramp_end_freq) > 0.1:
+               self.ramp_start_freq = self.current_frequency
+               self.ramp_end_freq = self._freq_target
+               self.ramp_progress = 0.0
+               self.crossfade_active = True
+               self.freq_changes += 1
+           
+           current_freq = self._apply_ramp(self._freq_target, dt)
+           
+           vol_diff = self._vol_target - self.current_volume
+           if abs(vol_diff) > 0.001:
+               self.current_volume += vol_diff * 0.1
+           else:
+               self.current_volume = self._vol_target
+           
+           new_buffer = self._generate_buffer(current_freq, self.current_volume)
+           
+           if self.crossfade_active and self.old_buffer is not None:
+               old = self.old_buffer.astype(np.float64)
+               new = new_buffer.astype(np.float64)
+               fade_size = min(self.crossfade_size, len(new_buffer) // 4)
+               fade_in = self.crossfade_in[:fade_size]
+               fade_out = self.crossfade_out[:fade_size]
+               old[-fade_size:] = old[-fade_size:] * fade_out
+               new[:fade_size] = new[:fade_size] * fade_in
+               mixed = old.copy()
+               mixed[-fade_size:] += new[:fade_size]
+               mixed[fade_size:] = new[fade_size:]
+               new_buffer = mixed.astype(np.int16)
+               self.crossfade_active = False
+               self.old_buffer = None
+           else:
+               self.old_buffer = new_buffer.copy()
+           
+           np.copyto(self.sound_array, new_buffer)
+           self.update_count += 1
+       
+       # ============================================
+       # ГЕТТЕРЫ И ДИАГНОСТИКА (БЕЗ ИЗМЕНЕНИЙ)
+       # ============================================
+   ✅ Используется кроссфейд
+   ✅ Используется ramp
+
+======================================================================
+💡 РЕКОМЕНДАЦИИ
+======================================================================
+
+   Если все параметры на месте, проблема может быть в exercise_engine.py
+   Проверьте _play_harmonic() и start_adjustment()
+   
+
+======================================================================
+✅ АНАЛИЗ ЗАВЕРШЕН
+======================================================================

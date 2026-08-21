@@ -1,0 +1,11 @@
+{
+  "current_task": 0,
+  "total_tasks": 10,
+  "correct": 0,
+  "wrong": 0,
+  "total_deviation": 0.0,
+  "deviation_count": 0,
+  "task_history": [],
+  "last_updated": "2026-08-14T21:47:19.436738",
+  "is_active": false
+}
