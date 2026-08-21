@@ -19,10 +19,8 @@ p4a.local_recipes = ./p4a-recipes
 
 orientation = portrait
 
-# ДОБАВЛЯЕМ BLUETOOTH РАЗРЕШЕНИЯ ДЛЯ API 31
 android.permissions = INTERNET, VIBRATE, RECORD_AUDIO, MODIFY_AUDIO_SETTINGS, BLUETOOTH, BLUETOOTH_CONNECT, BLUETOOTH_SCAN
 
-# ПОДНИМАЕМ API ДО 31 (решает проблему BLUETOOTH_CONNECT)
 android.api = 31
 android.minapi = 24
 android.ndk_api = 24
@@ -33,6 +31,10 @@ android.archs = arm64-v8a, armeabi-v7a
 android.enable_androidx = True
 android.auto_sign = True
 android.accept_sdk_license = True
+
+# === НОВЫЕ ПАРАМЕТРЫ ДЛЯ OPENGL ES ===
+android.graphics = gles2
+android.gles_version = 2
 
 [buildozer]
 
