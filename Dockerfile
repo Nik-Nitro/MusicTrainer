@@ -11,7 +11,15 @@ ENV PYTHON_VERSION=3.11 \
     HOSTPYTHON_VERSION=3.11 \
     ANDROID_HOME=/home/builder/.buildozer/android/platform/android-sdk \
     ANDROID_SDK_ROOT=/home/builder/.buildozer/android/platform/android-sdk \
-    URL_python3=https://github.com/python/cpython/archive/refs/tags/v3.11.0.tar.gz
+    URL_python3=https://github.com/python/cpython/archive/refs/tags/v3.11.0.tar.gz \
+    # === НОВЫЕ ПЕРЕМЕННЫЕ ДЛЯ OPENGL ES === \
+    KIVY_GLES2=1 \
+    KIVY_GLES=1 \
+    USE_GLES2=1 \
+    KIVY_GL_BACKEND=sdl2 \
+    USE_X11=0 \
+    KIVY_NO_X11=1 \
+    KIVY_USE_X11=0
 
 RUN python3 --version && echo "Python version is 3.11"
 
@@ -63,8 +71,4 @@ RUN git config --global --add safe.directory '*' \
     && git config --global user.name "Builder" \
     && git config --global http.postBuffer 524288000
 
-ENV TERM=xterm-256color \
-    USE_X11=0 \
-    KIVY_GL_BACKEND=sdl2 \
-    KIVY_NO_X11=1 \
-    KIVY_USE_X11=0
+ENV TERM=xterm-256color
