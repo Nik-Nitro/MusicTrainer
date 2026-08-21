@@ -11,7 +11,8 @@ source.exclude_exts = spec,db,pyc,pyo
 source.exclude_dirs = tests, __pycache__, .git, .buildozer, to_delete_backup
 source.include_patterns = data/*, exercises/*, screens/*, core/*, ui/*
 
-requirements = python3==3.11.0,kivy==2.1.0,pygame==2.6.1,numpy
+# ИЗМЕНЯЕМ ВЕРСИЮ KIVY НА 2.3.0
+requirements = python3==3.11.0,kivy==2.3.0,pygame==2.6.1,numpy
 
 hostpython3 = /usr/local/bin/python3.11
 
@@ -32,7 +33,6 @@ android.enable_androidx = True
 android.auto_sign = True
 android.accept_sdk_license = True
 
-# === НОВЫЕ ПАРАМЕТРЫ ДЛЯ OPENGL ES ===
 android.graphics = gles2
 android.gles_version = 2
 
