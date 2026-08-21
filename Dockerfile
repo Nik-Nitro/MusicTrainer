@@ -12,7 +12,6 @@ ENV PYTHON_VERSION=3.11 \
     ANDROID_HOME=/home/builder/.buildozer/android/platform/android-sdk \
     ANDROID_SDK_ROOT=/home/builder/.buildozer/android/platform/android-sdk \
     URL_python3=https://github.com/python/cpython/archive/refs/tags/v3.11.0.tar.gz \
-    # === НОВЫЕ ПЕРЕМЕННЫЕ ДЛЯ OPENGL ES === \
     KIVY_GLES2=1 \
     KIVY_GLES=1 \
     USE_GLES2=1 \
