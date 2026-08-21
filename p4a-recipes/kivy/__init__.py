@@ -4,7 +4,7 @@ import re
 import glob
 
 class KivyRecipe(PythonRecipe):
-    version = '2.1.0'
+    version = '2.3.0'  # <-- ИЗМЕНЕНО С 2.1.0
     url = 'https://github.com/kivy/kivy/archive/{version}.tar.gz'
     
     def get_recipe_env(self, arch):
@@ -66,11 +66,9 @@ class KivyRecipe(PythonRecipe):
         # ============================================================
         # 2. СОЗДАЕМ ЗАГЛУШКИ ДЛЯ GL/gl.h
         # ============================================================
-        # Создаем папку GL
         gl_dir = os.path.join(build_dir, 'kivy', 'include', 'GL')
         os.makedirs(gl_dir, exist_ok=True)
         
-        # Заглушка для GL/gl.h
         gl_h_path = os.path.join(gl_dir, 'gl.h')
         with open(gl_h_path, 'w') as f:
             f.write('''
@@ -88,7 +86,6 @@ class KivyRecipe(PythonRecipe):
 ''')
         print(f"=== KIVY: Created GL/gl.h stub at {gl_h_path} ===")
         
-        # Заглушка для GL/glext.h
         glext_path = os.path.join(gl_dir, 'glext.h')
         with open(glext_path, 'w') as f:
             f.write('''
@@ -106,7 +103,6 @@ class KivyRecipe(PythonRecipe):
 ''')
         print(f"=== KIVY: Created GL/glext.h stub at {glext_path} ===")
         
-        # Заглушка для GL/glu.h
         glu_path = os.path.join(gl_dir, 'glu.h')
         with open(glu_path, 'w') as f:
             f.write('''
@@ -132,13 +128,10 @@ class KivyRecipe(PythonRecipe):
                         with open(path, 'r') as f:
                             content = f.read()
                         
-                        # Отключаем X11
                         content = re.sub(r'USE_X11\s*=\s*[10]', 'USE_X11 = 0', content)
                         content = re.sub(r'KIVY_USE_X11\s*=\s*[10]', 'KIVY_USE_X11 = 0', content)
                         content = re.sub(r'if\s+USE_X11\s*:', 'if False:', content)
                         content = re.sub(r'elif\s+USE_X11\s*:', 'elif False:', content)
-                        
-                        # Включаем GLES2
                         content = re.sub(r'USE_GLES2\s*=\s*[10]', 'USE_GLES2 = 1', content)
                         content = re.sub(r'KIVY_GLES2\s*=\s*[10]', 'KIVY_GLES2 = 1', content)
                         content = re.sub(r'KIVY_GLES\s*=\s*[10]', 'KIVY_GLES = 1', content)
