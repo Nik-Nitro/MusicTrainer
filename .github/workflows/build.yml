@@ -35,6 +35,23 @@ jobs:
         run: |
           docker build -t builder .
 
+      - name: Clean p4a cache
+        run: |
+          docker run --rm \
+            -v "$PWD:/app" \
+            -w /app \
+            --user root \
+            builder bash -c "
+              chown -R builder:builder /app
+              chmod -R 755 /app
+              su builder -c '
+                echo \"=== Очищаем кэш p4a ===\"
+                rm -rf /home/builder/.buildozer/android/platform/build-arm64-v8a_armeabi-v7a/
+                rm -rf /home/builder/.buildozer/android/packages/
+                echo \"✅ Кэш p4a очищен\"
+              '
+            "
+
       - name: Build APK
         run: |
           docker run --rm \
@@ -46,24 +63,19 @@ jobs:
             -e KIVY_NO_X11=1 \
             -e KIVY_USE_X11=0 \
             builder bash -c "
-              # Исправляем права для builder
               chown -R builder:builder /app
               chmod -R 755 /app
-              
-              # Запускаем сборку от builder
               su builder -c '
                 cd /app
                 rm -rf .buildozer/ bin/
                 echo \"=== Starting build ===\"
                 buildozer android debug --verbose 2>&1 | tee build.log
                 
-                echo \"=== Проверяем, что собралось ===\"
-                echo \"--- Проверяем APK ---\"
+                echo \"=== Проверяем APK ===\"
                 ls -la bin/
-                
-                echo \"--- Проверяем наличие Kivy в APK ---\"
                 if [ -f bin/*.apk ]; then
-                  unzip -l bin/*.apk | grep -E \"kivy|numpy|pygame\" || echo \"⚠️ Kivy, NumPy или Pygame не найдены в APK!\"
+                  echo \"=== Проверяем содержимое APK ===\"
+                  unzip -l bin/*.apk | grep -E \"kivy|numpy|pygame|SDL2\" | head -20
                 fi
               '
             "
