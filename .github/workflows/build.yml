@@ -56,6 +56,15 @@ jobs:
                 rm -rf .buildozer/ bin/
                 echo \"=== Starting build ===\"
                 buildozer android debug --verbose 2>&1 | tee build.log
+                
+                echo \"=== Проверяем, что собралось ===\"
+                echo \"--- Проверяем APK ---\"
+                ls -la bin/
+                
+                echo \"--- Проверяем наличие Kivy в APK ---\"
+                if [ -f bin/*.apk ]; then
+                  unzip -l bin/*.apk | grep -E \"kivy|numpy|pygame\" || echo \"⚠️ Kivy, NumPy или Pygame не найдены в APK!\"
+                fi
               '
             "
 
