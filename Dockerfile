@@ -1,17 +1,17 @@
-FROM python:3.11-slim
+FROM python:3.10-slim
 
-ENV PYTHON_VERSION=3.11 \
+ENV PYTHON_VERSION=3.10 \
     LANG=C.UTF-8 \
     LC_ALL=C.UTF-8 \
     DEBIAN_FRONTEND=noninteractive \
     PYTHONUNBUFFERED=1 \
     PIP_NO_CACHE_DIR=1 \
     PIP_DISABLE_PIP_VERSION_CHECK=1 \
-    HOSTPYTHON=/usr/local/bin/python3.11 \
-    HOSTPYTHON_VERSION=3.11 \
+    HOSTPYTHON=/usr/local/bin/python3.10 \
+    HOSTPYTHON_VERSION=3.10 \
     ANDROID_HOME=/home/builder/.buildozer/android/platform/android-sdk \
     ANDROID_SDK_ROOT=/home/builder/.buildozer/android/platform/android-sdk \
-    URL_python3=https://github.com/python/cpython/archive/refs/tags/v3.11.0.tar.gz \
+    URL_python3=https://github.com/python/cpython/archive/refs/tags/v3.10.0.tar.gz \
     KIVY_GLES2=1 \
     KIVY_GLES=1 \
     USE_GLES2=1 \
@@ -20,7 +20,7 @@ ENV PYTHON_VERSION=3.11 \
     KIVY_NO_X11=1 \
     KIVY_USE_X11=0
 
-RUN python3 --version && echo "Python version is 3.11"
+RUN python3 --version && echo "Python version is 3.10"
 
 RUN apt-get update && apt-get install -y \
     git zip unzip wget curl make \
@@ -37,7 +37,7 @@ RUN apt-get update && apt-get install -y \
     sudo \
     && rm -rf /var/lib/apt/lists/* && apt-get clean
 
-RUN ln -sf /usr/local/bin/python3.11 /usr/local/bin/python3
+RUN ln -sf /usr/local/bin/python3.10 /usr/local/bin/python3
 
 RUN git config --global http.postBuffer 524288000 && \
     git config --global http.lowSpeedLimit 0 && \
