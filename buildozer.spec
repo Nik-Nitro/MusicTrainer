@@ -11,10 +11,10 @@ source.exclude_exts = spec,db,pyc,pyo
 source.exclude_dirs = tests, __pycache__, .git, .buildozer, to_delete_backup
 source.include_patterns = data/*, exercises/*, screens/*, core/*, ui/*
 
-# ВОЗВРАЩАЕМСЯ К KIVY 2.1.0 И PYTHON 3.10
-requirements = python3==3.10.0,kivy==2.1.0,pygame==2.6.1,numpy
+# ФИКСИРУЕМ ВЕРСИЮ NUMPY ДЛЯ PYTHON 3.10
+requirements = python3==3.10.0,kivy==2.1.0,pygame==2.6.1,numpy==1.26.4
 
-hostpython3 = /usr/local/bin/python3.10  # <-- ИЗМЕНЕНО
+hostpython3 = /usr/local/bin/python3.10
 
 p4a.local_recipes = ./p4a-recipes
 
