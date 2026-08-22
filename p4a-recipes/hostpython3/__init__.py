@@ -6,7 +6,7 @@ import subprocess
 
 class HostPython3Recipe(Recipe):
     name = 'hostpython3'
-    version = '3.11.0'
+    version = '3.10.0'  # <-- ИЗМЕНЕНО
     url = None
     
     def should_build(self, arch):
@@ -25,7 +25,7 @@ class HostPython3Recipe(Recipe):
         return
 
     def get_path_to_python(self):
-        python_path = '/usr/local/bin/python3.11'
+        python_path = '/usr/local/bin/python3.10'  # <-- ИЗМЕНЕНО
         if os.path.exists(python_path):
             info(f'HostPython3: found python at {python_path}')
             return python_path
@@ -48,7 +48,7 @@ class HostPython3Recipe(Recipe):
         for path in sys.path:
             if 'site-packages' in path:
                 return path
-        return '/usr/local/lib/python3.11/site-packages'
+        return '/usr/local/lib/python3.10/site-packages'  # <-- ИЗМЕНЕНО
 
     @property
     def pip(self):
@@ -56,16 +56,14 @@ class HostPython3Recipe(Recipe):
             info(f'HostPython3: pip called with args: {args}')
             info(f'HostPython3: pip called with kwargs: {kwargs}')
             
-            cmd = ['/usr/local/bin/pip3.11'] + list(args)
+            cmd = ['/usr/local/bin/pip3.10'] + list(args)  # <-- ИЗМЕНЕНО
             
-            # Извлекаем _env
             env = kwargs.pop('_env', None)
             if env:
                 new_env = os.environ.copy()
                 new_env.update(env)
                 kwargs['env'] = new_env
             
-            # Игнорируем все специальные параметры p4a
             kwargs.pop('_iter', None)
             kwargs.pop('_spawn', None)
             kwargs.pop('_bg', None)
@@ -85,14 +83,10 @@ class HostPython3Recipe(Recipe):
             info(f'HostPython3: pip final cmd: {cmd}')
             info(f'HostPython3: pip final kwargs: {kwargs}')
             
-            # ВАЖНО: используем check_output, который возвращает вывод, а не код возврата
-            # Это нужно, потому что p4a ожидает итерируемый объект
             try:
                 output = subprocess.check_output(cmd, **kwargs, text=True)
-                # Возвращаем вывод построчно (как итерируемый объект)
                 return output.splitlines()
             except subprocess.CalledProcessError as e:
-                # Если ошибка, возвращаем вывод ошибки
                 return e.output.splitlines() if e.output else []
         return pip_command
 
