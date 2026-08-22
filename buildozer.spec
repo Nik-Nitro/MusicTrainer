@@ -11,10 +11,10 @@ source.exclude_exts = spec,db,pyc,pyo
 source.exclude_dirs = tests, __pycache__, .git, .buildozer, to_delete_backup
 source.include_patterns = data/*, exercises/*, screens/*, core/*, ui/*
 
-# ИЗМЕНЯЕМ ВЕРСИЮ KIVY НА 2.3.0
-requirements = python3==3.11.0,kivy==2.3.0,pygame==2.6.1,numpy
+# ВОЗВРАЩАЕМСЯ К KIVY 2.1.0 И PYTHON 3.10
+requirements = python3==3.10.0,kivy==2.1.0,pygame==2.6.1,numpy
 
-hostpython3 = /usr/local/bin/python3.11
+hostpython3 = /usr/local/bin/python3.10  # <-- ИЗМЕНЕНО
 
 p4a.local_recipes = ./p4a-recipes
 
