@@ -4,7 +4,8 @@ import os
 
 class NumpyRecipe(PythonRecipe):
     version = '1.26.4'
-    url = 'https://pypi.org/packages/source/n/numpy/numpy-{version}.zip'
+    # ИСПРАВЛЯЕМ URL НА ПРАВИЛЬНЫЙ
+    url = 'https://files.pythonhosted.org/packages/source/n/numpy/numpy-{version}.tar.gz'
     depends = ['python3', 'hostpython3']
     
     def get_recipe_env(self, arch):
